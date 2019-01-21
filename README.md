@@ -35,6 +35,13 @@ Installation
     Currently not avaiable
     
     
-API
-----------------
-  (illustration for each mutation operators will be recorded here)
+Source-level mutation operators 
+------------------
+-  DR - Data Repetition
+-  LE - Label Error 
+-  DM - Data Missing 
+-  DF - Data Shuffle
+-  NP - Noise Perturb
+-  LR - Layer Removal
+-  LAs - Layer Addition (source-level)
+-  AFRs - Activation Function Removal (source-level)
