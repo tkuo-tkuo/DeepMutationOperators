@@ -1,11 +1,10 @@
 # DeepMutation
 
 It's a repository, which aims to implement mutation operators for Deep Learning Mutation Testing. <br/>
-Overall, it provides a tool to generate mutated model for mutation testing on DL structure. Mutated models will be generated with one of mutation operators. <br/> 
-In this repository, 8 source level mutation operators and 8 model level mutation operators will be implemented. <br/>
 <br/>
-The concept of these mutation operators are mainly mentioned in the paper, <b>DeepMutation: Mutation Testing of Deep Learning Systems</b>, where the link is attached in references. <br/>
-However, some of the coding implementations are not clearly describled in the paper. In this repository, we resolve the vague part by some assumptions which would be further documented, aiming to provide a handy tool for mutation testing on DL structure.  <br/>
+Overall, it provides a tool to generate mutated model for mutation testing on DL structure, where mutated models will be generated with one of mutation operators. In this repository, 8 source level mutation operators and 8 model level mutation operators will be implemented. <br/>
+<br/>
+The concept of these mutation operators are mainly mentioned in the paper, <b> DeepMutation: Mutation Testing of Deep Learning Systems </b>, where the link is attached in references. However, some of the coding implementations are not clearly describled in the paper. In this repository, we resolve the vague part by some assumptions which would be further documented, aiming to provide a handy tool for mutation testing on DL structure.  <br/>
 
 Background
 ----------------
