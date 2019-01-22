@@ -8,8 +8,7 @@ import utils
 class ProgramMutationOperators():
     def __init__(self):
         self.LR_mut_candidates = ['Dense', 'BatchNormalization']
-        self.LA_mut_candidates = [
-            tf.keras.layers.ReLU(), tf.keras.layers.BatchNormalization()]
+        self.LA_mut_candidates = [tf.keras.layers.ReLU(), tf.keras.layers.BatchNormalization()]
 
     def get_random_layer_LA(self):
         num_of_LA_candidates = len(self.LA_mut_candidates)
@@ -104,37 +103,29 @@ class DataMutationOperators():
         number_of_train_data = len(train_datas)
 
         # shuffle the original train data
-        shuffled_train_datas, shuffled_train_labels = self.utils.shuffle_in_uni(
-            train_datas, train_labels)
+        shuffled_train_datas, shuffled_train_labels = self.utils.shuffle_in_uni(train_datas, train_labels)
 
         # select a portion of data and reproduce
         number_of_duplicate = math.floor(number_of_train_data * mutation_ratio)
         repeated_train_datas = shuffled_train_datas[:number_of_duplicate]
         repeated_train_labels = shuffled_train_labels[:number_of_duplicate]
-
-        repeated_train_datas = np.append(
-            train_datas, repeated_train_datas, axis=0)
-        repeated_train_labels = np.append(
-            train_labels, repeated_train_labels, axis=0)
-
+        repeated_train_datas = np.append(train_datas, repeated_train_datas, axis=0)
+        repeated_train_labels = np.append(train_labels, repeated_train_labels, axis=0)
         return repeated_train_datas, repeated_train_labels
 
     def LE_mut(self, train_datas, train_labels, label_lower_bound, label_upper_bound, mutation_ratio):
         number_of_train_data = len(train_datas)
-        number_of_error_labels = math.floor(
-            number_of_train_data * mutation_ratio)
+        number_of_error_labels = math.floor(number_of_train_data * mutation_ratio)
         permutation = np.random.permutation(len(train_datas))
         permutation = permutation[:number_of_error_labels]
         for old_index, new_index in enumerate(permutation):
             train_labels[new_index] = random.randint(
                 label_lower_bound, label_upper_bound)
-
         return train_datas, train_labels
 
     def DM_mut(self, train_datas, train_labels, mutation_ratio):
         number_of_train_data = len(train_datas)
-        number_of_error_labels = math.floor(
-            number_of_train_data * mutation_ratio)
+        number_of_error_labels = math.floor(number_of_train_data * mutation_ratio)
 
         assert number_of_train_data >= number_of_error_labels
         permutation = np.random.permutation(number_of_train_data)
@@ -142,7 +133,6 @@ class DataMutationOperators():
 
         train_datas = np.delete(train_datas, permutation, 0)
         train_labels = np.delete(train_labels, permutation, 0)
-
         return train_datas, train_labels
 
     def DF_mut(self, train_datas, train_labels):
@@ -150,16 +140,13 @@ class DataMutationOperators():
 
     def NP_mut(self, train_datas, train_labels, mutation_ratio):
         number_of_train_data = len(train_datas)
-        number_of_noise_perturbs = math.floor(
-            number_of_train_data * mutation_ratio)
+        number_of_noise_perturbs = math.floor(number_of_train_data * mutation_ratio)
 
         assert number_of_train_data >= number_of_noise_perturbs
         permutation = np.random.permutation(number_of_train_data)
         permutation = permutation[:number_of_noise_perturbs]
 
-        random_train_datas = np.random.standard_normal(
-            train_datas.shape) / 10.0
+        random_train_datas = np.random.standard_normal(train_datas.shape) / 10.0
         for old_index, new_index in enumerate(permutation):
             train_datas[new_index] += random_train_datas[new_index]
-
         return train_datas, train_labels
