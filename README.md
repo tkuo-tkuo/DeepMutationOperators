@@ -14,14 +14,19 @@ Source-level mutation operators mutate either the original training dataset or t
 For each of the mutation operators, it should be capable to generate several mutated models based on the same original training dataset and training program. Therefore, randomness should be involved in each of the mutation operators. See the description of individual operators Implementation for more details.   
   
 -  <b> DR - Data Repetition:</b>  
-   Target : Data  
-   Brief Operator Description: DR operator duplicates a small portion of training data according to mutation ratio.
+   Target : Training dataset  
+   Brief Operator Description: DR operator duplicates a portion of training dataset.
    Implementation:  
-   1. Randomly select a specific amount of samples based on the mutation ratio, where each of the selected samples is chosen independently and exclusively. For instance, if there are 5000 samples and mutation ratio is set to be 0.01, 50 samples will be selected for duplication, where the samples should like [sample_3827, sample_2, sample_4999, ..., sample 2387] instead of [sample_1, sample_2, ..., sample_50] or [sample_4951, sample_4952, ..., sample_5000].  
+   1. A specific amount of samples is chosen independently and exclusively based on mutation ratio. For instance, if there are 5000 samples and mutation ratio is set to be 0.01, 50 samples will be selected for duplication, where the samples should like [sample_3827, sample_2, sample_4999, ..., sample 2387] instead of [sample_1, sample_2, ..., sample_50] or [sample_4951, sample_4952, ..., sample_5000].  
    2. Selected samples are concatenated with the original training dataset.  
    
--  LE - Label Error 
-
+-  <b>LE - Label Error:</b>  
+   Target: Training dataset  
+   Brief Operator Description: LE operator falsifies a portion of results (e.g., labels) in traning dataset.  
+   Implementation:  
+   1. A specific amount of samples is chosen independently and exclusively based on mutation ratio. See the illustration in DR Implementation step i.  
+   2. Each result (e.g., label) among the chosen samples is mislabeled by LE operator. For instance, if the set of labels is donated as L, {0, 1, ..., 9}, and the correct label is 0, LE operator will randomly assign a value among L except the correct label 0.  
+   
 -  DM - Data Missing 
 
 -  DF - Data Shuffle
