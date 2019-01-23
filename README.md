@@ -26,10 +26,14 @@ For each of the mutation operators, it should be capable to generate several mut
    Implementation:  
    1. A specific amount of samples is chosen independently and exclusively based on mutation ratio. See the illustration in DR Implementation step i.  
    2. Each result (e.g., label) among the chosen samples is mislabeled by LE operator. For instance, if the set of labels is donated as L, {0, 1, ..., 9}, and the correct label is 0, LE operator will randomly assign a value among L except the correct label 0.  
+    
+-  <b>DM - Data Missing :</b>  
+   Target: Training dataset
+   Brief Operator Description: Remove a portion of training dataset  
+   1. A specific amount of samples is chosen independently and exclusively for further removal based on mutation ratio. See the illustration in DR Implementation step i.  
+   2. Selected samples in the training dataset are removed.  
    
--  DM - Data Missing 
-
--  DF - Data Shuffle
+-  <b>DF - Data Shuffle:</b>
 -  NP - Noise Perturb
 -  LR - Layer Removal
 -  LAs - Layer Addition (source-level)
