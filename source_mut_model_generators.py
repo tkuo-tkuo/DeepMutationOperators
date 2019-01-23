@@ -207,19 +207,18 @@ class SourceMutatedModelGenerators():
         self.network.save_model(AFR_model, name_of_file, mode)
 
 
+    # def load_and_train_model_test(self, file_name):
+    #     model = self.network.load_model(file_name)
+    #     (train_datas, train_labels), (test_datas,
+    #                                   test_labels) = self.network.load_data()   
+    #     loss, acc = model.evaluate(test_datas, test_labels)
+    #     print('model accurancy: {:5.2f}%'.format(100*acc))
+    #     print('')
 
-    def load_and_train_model_test(self, file_name):
-        model = self.network.load_model(file_name)
-        (train_datas, train_labels), (test_datas,
-                                      test_labels) = self.network.load_data()   
-        loss, acc = model.evaluate(test_datas, test_labels)
-        print('model accurancy: {:5.2f}%'.format(100*acc))
-        print('')
-
-        filepath = "model2-{epoch:02d}-{loss:.4f}.h5"
-        checkpoint = tf.keras.callbacks.ModelCheckpoint(
-            filepath, monitor='loss', verbose=5, save_best_only=True, mode='min')
-        callbacks_list = [checkpoint]
-        (train_datas, train_labels), (test_datas,
-                                      test_labels) = self.network.load_data()
-        model.fit(train_datas, train_labels, epochs=40, batch_size=50, callbacks=callbacks_list)
+    #     filepath = "model2-{epoch:02d}-{loss:.4f}.h5"
+    #     checkpoint = tf.keras.callbacks.ModelCheckpoint(
+    #         filepath, monitor='loss', verbose=5, save_best_only=True, mode='min')
+    #     callbacks_list = [checkpoint]
+    #     (train_datas, train_labels), (test_datas,
+    #                                   test_labels) = self.network.load_data()
+    #     model.fit(train_datas, train_labels, epochs=40, batch_size=50, callbacks=callbacks_list)
