@@ -28,14 +28,37 @@ For each of the mutation operators, it should be capable to generate several mut
    2. Each result (e.g., label) among the chosen samples is mislabeled by LE operator. For instance, if the set of labels is donated as L, {0, 1, ..., 9}, and the correct label is 0, LE operator will randomly assign a value among L except the correct label 0.  
     
 -  <b>DM - Data Missing :</b>  
-   Target: Training dataset
+   Target: Training dataset  
    Brief Operator Description: Remove a portion of training dataset  
+   Implementation:  
    1. A specific amount of samples is chosen independently and exclusively for further removal based on mutation ratio. See the illustration in DR Implementation step i.  
    2. Selected samples in the training dataset are removed.  
    
--  <b>DF - Data Shuffle:</b>
--  NP - Noise Perturb
--  LR - Layer Removal
+-  <b>DF - Data Shuffle:</b>   
+   Target: Training dataset  
+   Brief Operator Description: Shuffle selected samples among training dataset  
+   Implementation:  
+   1. A specific amount of samples is chosen independently and exclusivel based on mutation ratio. See the illustration in DR Implementation step i.  
+   2. Only the selected samples will be shuffled and the order of unselected samples is preserved.  
+   
+-  <b>NP - Noise Perturb:</b>  
+   Target: Training dataset  
+   Brief Operator Description: Add noise to a portion of training dataset  
+   Implementation:  
+   1. A specific amount of samples is chosen independently and exclusivel based on mutation ratio. See the illustration in DR Implementation step i.  
+   2. Noises are appended on each of the selected datasets. Since raw data in the training dataset are rescaled in the range between 0 and 1, the value of noises follows normal distribution N(0, 0.1^2), where standard deviation parameter is a user-configurable parameter with default value 0.1.    
+   
+-  <b>LR - Layer Removal:</b>  
+   Target: Training program  
+   Brief Operator Description: Remove a layer   
+   Implementation:  
+   1. LR operator randomly deletes a layer on the condition that the input and output structure of the deleted layer are the same. It traverses the entire structure of Deep Learning model and records all the layers where the condition is satisfied.  
+   2. According to the paper, DeepMutation: Mutation Testing of Deep Learning Systems, LR mutation operator mainly focuses on layers (e.g., Dense, BatchNormalization layer), whose deletion doesn't make too much influence on the mutated model, since arbitrary removal of a layer may generate obviously different DL model from the original one.  
+   3. One of the selected layers which are recorded in step i. and satisfies the requirement of step ii. is randomly removed  
+  
+   Remarks that in my implementation, the input and output will not be included in the consideration.   
+   
+   
 -  LAs - Layer Addition (source-level)
 -  AFRs - Activation Function Removal (source-level)
 
