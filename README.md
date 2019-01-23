@@ -56,7 +56,7 @@ For each of the mutation operators, it should be capable to generate several mut
    2. According to the paper, DeepMutation: Mutation Testing of Deep Learning Systems, LR mutation operator mainly focuses on layers (e.g., Dense, BatchNormalization layer), whose deletion doesn't make too much influence on the mutated model, since arbitrary removal of a layer may generate obviously different DL model from the original one.  
    3. One of the selected layers which are recorded in step i. and satisfies the requirement of step ii. is randomly removed  
   
-   Remarks that in my implementation, the input and output will not be included in the consideration.   
+   Remarks that in my implementation, the input layer and output layer will not be included in the consideration.   
    
 -  <b>LAs - Layer Addition (source-level):</b>  
    Target: Training program  
@@ -68,7 +68,23 @@ For each of the mutation operators, it should be capable to generate several mut
    Target: Training program  
    Brief Operator Description: Remove activation layers of a layer    
    Implementation:  
-   1. 
+   1. AFRs randomly remove all activation functions of a layer.  
+  
+   Remarks that in my implementation, the activation functions of the output layer will not be included in the consideration. For instance, the value after activation function, softmax, of the output layer reflects the level of confidence. It may be better not to eliminate the activation functions of the output layer.  
+   
+Model-level mutation operators 
+------------------
+Model-level mutation operators directly mutate the structure and parameters of DL model without training procedure, which is more efficient for DL mutant model generation.  
+  
+-  GF - Gaussian Fuzzing
+-  WS - Weight Shuffling 
+-  NEB - Neuron Effect Block
+-  NAI - Neuron Activation Inverse
+-  NS - Neuron Switch
+-  LD - Layer Deactivation
+-  LAm - Layer Addition (model-level)
+-  AFRm - Activation Function Removal (model-level)
+
 
 Background
 ----------------
@@ -77,9 +93,9 @@ Background
  
 Configuration
 ----------------
-  Python: 3.5.1 <br/>
-  Tensorflow: 1.12.0 <br/>
-  NumPy: 1.15.1 <br/>
+  Python: 3.5.1  
+  Tensorflow: 1.12.0  
+  NumPy: 1.15.1  
 
 
 Installation
