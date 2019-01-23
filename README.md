@@ -58,10 +58,17 @@ For each of the mutation operators, it should be capable to generate several mut
   
    Remarks that in my implementation, the input and output will not be included in the consideration.   
    
-   
--  LAs - Layer Addition (source-level)
--  AFRs - Activation Function Removal (source-level)
+-  <b>LAs - Layer Addition (source-level):</b>  
+   Target: Training program  
+   Brief Operator Description: Add a layer   
+   Implementation:  
+   1. According to the paper, DeepMutation: Mutation Testing of Deep Learning Systems, LAs operator mainly focuses on adding layers like Activation, BatchNormalization. More types of layers should be considered in the future implementation once addition of a layer will not generate obviously different DL model from the original one, where unqualified mutant can be filtered out.   
 
+-  <b>AFRs - Activation Function Removal (source-level):</b>  
+   Target: Training program  
+   Brief Operator Description: Remove activation layers of a layer    
+   Implementation:  
+   1. 
 
 Background
 ----------------
