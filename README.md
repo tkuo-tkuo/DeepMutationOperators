@@ -53,7 +53,7 @@ For each of the mutation operators, it should be capable to generate several mut
    Brief Operator Description: Remove a layer   
    Implementation:  
    1. LR operator randomly deletes a layer on the condition that the input and output structure of the deleted layer are the same. It traverses the entire structure of Deep Learning model and records all the layers where the condition is satisfied.  
-   2. According to the paper, DeepMutation: Mutation Testing of Deep Learning Systems, LR mutation operator mainly focuses on layers (e.g., Dense, BatchNormalization layer), whose deletion doesn't make too much influence on the mutated model, since arbitrary removal of a layer may generate obviously different DL model from the original one.  
+   2. According to the paper, DeepMutation: Mutation Testing of Deep Learning Systems, LR mutation operator mainly focuses on layers (e.g., Dense, BatchNormalization layer), whose deletion doesn't make too much influence on the mutated model, since arbitrary removal of a layer may generate obviously different Deep Learning model from the original one.  
    3. One of the selected layers which are recorded in step i. and satisfies the requirement of step ii. is randomly removed  
   
    Remarks that in my implementation, the input layer and output layer will not be included in the consideration.   
@@ -62,7 +62,7 @@ For each of the mutation operators, it should be capable to generate several mut
    Target: Training program  
    Brief Operator Description: Add a layer   
    Implementation:  
-   1. According to the paper, DeepMutation: Mutation Testing of Deep Learning Systems, LAs operator mainly focuses on adding layers like Activation, BatchNormalization. More types of layers should be considered in the future implementation once addition of a layer will not generate obviously different DL model from the original one, where unqualified mutant can be filtered out.   
+   1. According to the paper, DeepMutation: Mutation Testing of Deep Learning Systems, LAs operator mainly focuses on adding layers like Activation, BatchNormalization. More types of layers should be considered in the future implementation once addition of a layer will not generate obviously different Deep Learning model from the original one, where unqualified mutant can be filtered out.   
 
 -  <b>AFRs - Activation Function Removal (source-level):</b>  
    Target: Training program  
@@ -74,7 +74,7 @@ For each of the mutation operators, it should be capable to generate several mut
    
 Model-level mutation operators 
 ------------------
-Model-level mutation operators directly mutate the structure and parameters of DL model without training procedure, which is more efficient for DL mutant model generation.  
+Model-level mutation operators directly mutate the structure and parameters of DNN's structure without training procedure, which is more efficient for mutated model generation. Explicitly, model-level mutation operators automatically analysis structure of given DNN and mutate on a copy of the original DNN, where the generated mutant models are serialized and stored as .h5 file format.  
   
 -  GF - Gaussian Fuzzing
 -  WS - Weight Shuffling 
@@ -88,7 +88,7 @@ Model-level mutation operators directly mutate the structure and parameters of D
 
 Background
 ----------------
-  (some background about mutation operators will be added here)
+  (some background information about mutation operators will be added here)
   
  
 Configuration
