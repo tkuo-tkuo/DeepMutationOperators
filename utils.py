@@ -3,6 +3,24 @@ import numpy as np
 
 class GeneralUtils():
 
+    def __init__(self):
+        pass
+
+    def decision(self, prob):
+        '''
+        Return True with the prob
+        
+        Note that random.random() returns floating point number in the range [0.0, 1.0)
+        '''
+        return random.random() < prob
+
+    def shuffle(self, a):
+        shuffled_a = np.empty(a.shape, dtype=a.dtype)
+        permutation = np.random.permutation(len(a))
+        for old_index, new_index in enumerate(permutation):
+            shuffled_a[new_index] = a[old_index]
+        return shuffled_a
+
     def shuffle_in_uni(self, a, b):
         assert len(a) == len(b)
         shuffled_a = np.empty(a.shape, dtype=a.dtype)
@@ -13,26 +31,16 @@ class GeneralUtils():
             shuffled_b[new_index] = b[old_index]
         return shuffled_a, shuffled_b
 
-    # SMM stands for sourve-level mutated model 
+    # SMM stands for source-level mutated model 
     # This func looks quite terrible, should be simplified
     def print_messages_SMM_generators(self, mode, train_datas=None, train_labels=None, mutated_datas=None, mutated_labels=None, model=None, mutated_model=None, mutation_ratio=0):
-        if mode == 'DR':
-            print('Before data repetition')
+        if mode == 'DR' or mode == 'DM':
+            print('Before ' + mode)
             print('Train data shape:', train_datas.shape)
             print('Train labels shape:', train_labels.shape)
             print('')
 
-            print('After data repetition, where the mutation ratio is', mutation_ratio)
-            print('Train data shape:', mutated_datas.shape)
-            print('Train labels shape:', mutated_labels.shape)
-            print('')
-        elif mode == 'DM':
-            print('Before data missing')
-            print('Train data shape:', train_datas.shape)
-            print('Train labels shape:', train_labels.shape)
-            print('')
-
-            print('After data missing, where the mutation ratio is', mutation_ratio)
+            print('After ' + mode + ', where the mutation ratio is', mutation_ratio)
             print('Train data shape:', mutated_datas.shape)
             print('Train labels shape:', mutated_labels.shape)
             print('')
@@ -46,3 +54,19 @@ class GeneralUtils():
             print('')
         else:
             pass
+
+    # MMM stands for model-level mutated model 
+    def print_messages_MMM_generators(self, mode, network=None, test_datas=None, test_labels=None, model=None, mutated_model=None, STD=0.1, mutation_ratio=0):
+        if mode == 'GF':
+            print('Before ' + mode)
+            network.evaluate_model(model, test_datas, test_labels)
+            print('After ' + mode + ', where the mutation ratio is', mutation_ratio, 'and STD is', STD)
+            network.evaluate_model(mutated_model, test_datas, test_labels, mode)
+        elif mode in ['WS', 'NEB', 'NAI', 'NS']:
+            print('Before ' + mode)
+            network.evaluate_model(model, test_datas, test_labels)
+            print('After ' + mode + ', where the mutation ratio is', mutation_ratio)
+            network.evaluate_model(mutated_model, test_datas, test_labels, mode)
+        else:
+            pass
+
