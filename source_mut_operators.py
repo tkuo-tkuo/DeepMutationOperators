@@ -119,8 +119,7 @@ class DataMutationOperators():
         permutation = np.random.permutation(len(train_datas))
         permutation = permutation[:number_of_error_labels]
         for old_index, new_index in enumerate(permutation):
-            train_labels[new_index] = random.randint(
-                label_lower_bound, label_upper_bound)
+            train_labels[new_index] = random.randint(label_lower_bound, label_upper_bound)
         return train_datas, train_labels
 
     def DM_mut(self, train_datas, train_labels, mutation_ratio):

@@ -107,32 +107,6 @@ class SourceMutatedModelGenerators():
         self.network.save_model(model, name_of_file, mode)
 
     def generate_model_by_LR_mutation(self, name_of_file, verbose=False, with_checkpoint=False):
-        '''
-        Layer Removal(LR):
-        Source-level mutation testing operator
-        Target: training program
-        Level: Global
-
-        return M'(a new mutated model based on original training data and mutated model)
-
-        Note that according to the paper, DeepMutation: Mutation Testing of Deep Learning Systems, 
-        LR operator mainly focuses on layers (e.g., Dense, BatchNormalization layer), whose deletion doesn't make 
-        too much difference on the mutated model. 
-
-        Note that according to the paper, DeepMutation: Mutation Testing of Deep Learning Systems, 
-        a condition is imposed on LR operator. (The input and output of the removed layer should be the same)
-
-        Note that after modification on model, you should compile the model again. 
-        Use model.summary() to check the total amount of parameters 
-
-        Note that for source-level mutation operator, do NOT use the trained network. 
-        LR operator should create and modify the untrained model and further train the model. 
-
-        Note that LR should not remove the input or output layer (my implementation)
-
-        Note that LR will remove the first layer which satisfies the condition. It means it has 
-        one of specified types and has the same input and output. (my implementation)
-        '''
         mode = 'LR'
         # original data
         (train_datas, train_labels), (test_datas, test_labels) = self.network.load_data()
@@ -149,21 +123,6 @@ class SourceMutatedModelGenerators():
         self.network.save_model(LR_model, name_of_file, mode)
 
     def generate_model_by_LAs_mutation(self, name_of_file, verbose=False, with_checkpoint=False):
-        '''
-        Layer Addition(LA):
-        Source-level mutation testing operator
-        Target: training program
-        Level: Global
-
-        return M'(a new mutated model based on original training data and mutated model)
-
-        Note that according to the paper, DeepMutation: Mutation Testing of Deep Learning Systems, 
-        LA operator mainly focuses on layers (e.g., Activation, BatchNormalization layer). it has 
-        one of specified types and has the same input and output. (my implementation)
-
-        Note that LAs operator will add the layer to the first space with satisfied condition from 
-        input to output. (my implementation)
-        '''
         mode = 'LAs'
         # original data
         (train_datas, train_labels), (test_datas, test_labels) = self.network.load_data()
@@ -180,17 +139,6 @@ class SourceMutatedModelGenerators():
         self.network.save_model(LA_model, name_of_file, mode)
 
     def generate_model_by_AFRs_mutation(self, name_of_file, verbose=False, with_checkpoint=False):
-        '''
-        Activation Function Removal(AFR):
-        Source-level mutation testing operator
-        Target: training program
-        Level: Global
-
-        return M'(a new mutated model based on original training data and mutated model)
-
-        Note that AFRs operator randomly remove activation frunction 
-        from one of the arbitrary layer except the output layer. (my implementation)
-        '''
         mode = 'AFRs'
         # original data
         (train_datas, train_labels), (test_datas, test_labels) = self.network.load_data()
