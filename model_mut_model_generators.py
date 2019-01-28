@@ -3,6 +3,8 @@ import os
 import source_mut_operators
 import utils, network, model_mut_operators
 
+import keras 
+
 
 class ModelMutatedModelGenerators():
 
@@ -16,7 +18,8 @@ class ModelMutatedModelGenerators():
         self.test_labels = test_labels
     
     def integration_test(self, verbose=False):
-        mutation_ratios = [0.01, 0.1, 0.2, 0.5, 1]
+        # mutation_ratios = [0.01, 0.1, 0.2, 0.5, 1]
+        mutation_ratios = [0.2]
         STD = 0.2
         for mutation_ratio in mutation_ratios:
             # self.generate_model_by_GF_mutation('GF_model', mutation_ratio, STD=STD, verbose=verbose)
@@ -24,7 +27,10 @@ class ModelMutatedModelGenerators():
             # self.generate_model_by_NEB_mutation('NEB_model', mutation_ratio, verbose=verbose)
             # self.generate_model_by_NAI_mutation('NAI_model', mutation_ratio, verbose=verbose)
             # self.generate_model_by_NS_mutation('NS_model', mutation_ratio, verbose=verbose)
-
+            # self.generate_model_by_LD_mutation('LD_model', mutation_ratio, verbose=verbose)
+            # self.generate_model_by_LAm_mutation('LAm_model', mutation_ratio, verbose=verbose)
+            self.generate_model_by_AFRm_mutation('AFRm_model', mutation_ratio, verbose=verbose)
+            
         # try:
         #     print('Integration test for model-level mutation operators: PASS')
         # except Exception as e:
@@ -191,3 +197,106 @@ class ModelMutatedModelGenerators():
             self.utils.print_messages_MMM_generators(mode, network=self.network, test_datas=self.test_datas, test_labels=self.test_labels, model=model, mutated_model=NS_model, mutation_ratio=mutation_ratio) 
 
         self.network.save_model(NS_model, name_of_file, mode) 
+
+    def generate_model_by_LD_mutation(self, name_of_file, mutation_ratio, verbose=False):
+        '''
+        LD: Layer Deactivation
+        Level: Layer
+        Brief Operator Description: Deactivate the effects of a layer 
+
+        Note that simply removing a layer from a trained DL model can break the model structure. 
+        We restrict the LD operator to layers whose input and output shapes are consistent.
+
+        Note that input and output layer should not be removed since removal of input and ouput 
+        mutate the model to which totally different from the original one
+
+        To be honest, LD is quite similar to LR operator, LR removes a layer and train while 
+        LD simply removes a layer. However, for layer removal, both mutation operators use the
+        same code segments.
+
+        Implementation: 
+        i.
+
+        '''
+        mode ='LD'
+        # load original DNN
+        model = self.network.load_model('debug_model') 
+        copy_model = self.network.load_model('debug_model')
+        LD_model = self.model_mut_opts.LD_mut(copy_model, mutation_ratio)
+        LD_model = self.network.compile_model(LD_model)
+
+        if verbose:
+            self.utils.print_messages_MMM_generators(mode, network=self.network, test_datas=self.test_datas, test_labels=self.test_labels, model=model, mutated_model=LD_model, mutation_ratio=mutation_ratio) 
+
+        self.network.save_model(LD_model, name_of_file, mode) 
+
+    def generate_model_by_LAm_mutation(self, name_of_file, mutation_ratio, verbose=False):
+        '''
+        LAm: Layer Addition
+        Level: Layer
+        Brief Operator Description: Add a layer in neuron network 
+
+        Note that LAm operator duplicate and insert copied layer with the condition that the shape of 
+        layer input and ouput should be consistent to avoid breaking the original DNNs. 
+
+        To be honest, LAm is quite similar to LAs operator, both of them add a layer with the constriction 
+        that the input and output must be the same. The only difference is that the weights of newly added layer
+        in LAm need to be copied from the previous layer. 
+
+        Implementation: 
+        i.
+
+        Problem:
+        i. The simplest implementation like 
+        new_model.add(layer)
+        new_model.add(layer)
+        since two layer being added have the exact same name, the name needs to unique for each layer.
+
+        But the problem is that name is read-only parameter. (something like copy_layer.name = 'copy_layer' is disabled)
+        => 
+        The alternative is to craft a new layer for addition
+        => 
+        However, it would be tedious and troublesome to cope with various type of layer. 
+        =>
+        Solution: downgrade the version of tensorflow from 1.12 to 1.11 and use 2.2.4 instead of tensorflow backend 2.1.6-tf
+        '''
+        mode ='LAm'
+        # load original DNN
+        model = self.network.load_model('debug_model') 
+        copy_model = self.network.load_model('debug_model')
+        copy_model_2 = self.network.load_model('debug_model')
+
+        LAm_model = self.model_mut_opts.LAm_mut(copy_model, copy_model_2, mutation_ratio)
+        LAm_model = self.network.compile_model(LAm_model)
+
+        if verbose:
+            self.utils.print_messages_MMM_generators(mode, network=self.network, test_datas=self.test_datas, test_labels=self.test_labels, model=model, mutated_model=LAm_model, mutation_ratio=mutation_ratio) 
+
+        self.network.save_model(LAm_model, name_of_file, mode) 
+
+
+
+    def generate_model_by_AFRm_mutation(self, name_of_file, mutation_ratio, verbose=False):
+        '''
+        AFRm: Activation Function Removal
+        Level: Layer
+        Brief Operator Description: Remove activation functions
+
+        Implementation: 
+        i.
+
+        Problem:
+        i. 
+        '''
+        mode ='AFRm'
+        # load original DNN
+        model = self.network.load_model('debug_model') 
+        copy_model = self.network.load_model('debug_model')
+
+        AFRm_model = self.model_mut_opts.AFRm_mut(copy_model, mutation_ratio)
+        AFRm_model = self.network.compile_model(AFRm_model)
+
+        if verbose:
+            self.utils.print_messages_MMM_generators(mode, network=self.network, test_datas=self.test_datas, test_labels=self.test_labels, model=model, mutated_model=AFRm_model, mutation_ratio=mutation_ratio) 
+
+        self.network.save_model(AFRm_model, name_of_file, mode) 

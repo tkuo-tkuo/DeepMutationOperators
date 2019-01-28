@@ -1,5 +1,7 @@
 import tensorflow as tf
 import numpy as np
+import keras
+
 import math
 
 import utils
@@ -7,6 +9,8 @@ import utils
 class ModelMutationOperators():
     def __init__(self):
         self.utils = utils.GeneralUtils()
+        self.LD_mut_candidates = ['Dense']
+        self.LAm_mut_candidates = ['Dense']
 
     def GF_on_list(self, lst, prob, STD):
         lst = lst.copy()
@@ -65,6 +69,9 @@ class ModelMutationOperators():
 
         return copy_lst 
 
+    def LA_get_added_layer(self, layer):
+        return layer
+
     # This function is designed for debugging purpose, 
     # detecting whether mutation operator truely modeifies the weights of given model 
     def diff_count(self, lst, mutated_lst):
@@ -76,7 +83,7 @@ class ModelMutationOperators():
 
     # STD stands for standard deviation 
     def GF_mut(self, model, mutation_ratio, STD=0.1):
-        new_model = tf.keras.models.Sequential()
+        new_model = keras.models.Sequential()
         layers = [l for l in model.layers]
         for index, layer in enumerate(layers):
             weights = np.array(layer.get_weights())
@@ -99,7 +106,7 @@ class ModelMutationOperators():
         return new_model
 
     def WS_mut(self, model, mutation_ratio):
-        new_model = tf.keras.models.Sequential()
+        new_model = keras.models.Sequential()
         layers = [l for l in model.layers]
         for index, layer in enumerate(layers):
             weights = np.array(layer.get_weights())
@@ -124,7 +131,7 @@ class ModelMutationOperators():
         return new_model
 
     def NEB_mut(self, model, mutation_ratio):
-        new_model = tf.keras.models.Sequential()
+        new_model = keras.models.Sequential()
         layers = [l for l in model.layers]
         for index, layer in enumerate(layers):
                 weights = np.array(layer.get_weights())
@@ -150,7 +157,7 @@ class ModelMutationOperators():
         return new_model
 
     def NAI_mut(self, model, mutation_ratio):
-        new_model = tf.keras.models.Sequential()
+        new_model = keras.models.Sequential()
         layers = [l for l in model.layers]
         for index, layer in enumerate(layers):
             weights = np.array(layer.get_weights())
@@ -161,7 +168,11 @@ class ModelMutationOperators():
             for val in weights:
                 val_shape = val.shape
                 if len(val.shape) == 2:
-                    val = self.NAI_on_list(val, output_dim_index)
+                    input_dim, output_dim = val_shape
+                    for output_dim_index in range(output_dim):
+                        if self.utils.decision(mutation_ratio):
+                            val = self.NAI_on_list(val, output_dim_index)
+
 
                 new_weights.append(val)
 
@@ -173,7 +184,7 @@ class ModelMutationOperators():
 
 
     def NS_mut(self, model, mutation_ratio):
-        new_model = tf.keras.models.Sequential()
+        new_model = keras.models.Sequential()
         layers = [l for l in model.layers]
         for index, layer in enumerate(layers):
             weights = np.array(layer.get_weights())
@@ -194,3 +205,90 @@ class ModelMutationOperators():
 
         return new_model
 
+    def LD_mut(self, model, mutation_ratio):
+        new_model = keras.models.Sequential()
+        layers = [l for l in model.layers]
+        any_layer_removed = False
+        for index, layer in enumerate(layers):
+            layer_type_name = type(layer).__name__
+            is_in_candidates = layer_type_name in self.LD_mut_candidates
+            has_same_input_output_shape = layer.input.shape.as_list() == layer.output.shape.as_list()
+            should_be_removed = is_in_candidates and has_same_input_output_shape
+
+            if index == 0 or index == (len(model.layers) - 1):
+                new_model.add(layer)
+                continue
+
+            if should_be_removed and not any_layer_removed:
+                any_layer_removed = True
+                continue
+
+            new_model.add(layer)
+
+        if not any_layer_removed:
+            print('None of layers be removed')
+            print('LD will only remove the layer with the same input and output')
+
+        return new_model
+
+    def LAm_mut(self, model, copy_model, mutation_ratio):
+        new_model = keras.models.Sequential()
+        layers = [l for l in model.layers]
+        copy_layers = [l for l in copy_model.layers]
+
+        any_layer_added = False
+        for index, layer in enumerate(layers):
+            layer_type_name = type(layer).__name__
+            is_in_candidates = layer_type_name in self.LAm_mut_candidates
+            has_same_input_output_shape = layer.input.shape.as_list() == layer.output.shape.as_list()
+            should_be_added = is_in_candidates and has_same_input_output_shape
+
+            if should_be_added and not any_layer_added:
+                any_layer_added = True
+                new_model.add(layer)
+                
+                # remember to load weights to the newly added layer
+                copy_layer = copy_layers[index]
+                copy_layer.name = 'LAm_' + layer.name  
+                new_model.add(copy_layer)
+                
+                print(layer.get_weights())
+                print(copy_layer.get_weights())
+
+                continue
+
+            new_model.add(layer)
+        
+        if not any_layer_added:
+            print('No layer be added')
+            print('LAm will only add the layer with the same input and output')
+            print('There is no suitable place to add such layer')
+
+        return new_model
+
+    def AFRm_mut(self, model, mutation_ratio):
+        new_model = keras.models.Sequential()
+        layers = [l for l in model.layers]
+        any_layer_AF_removed = False
+        for index, layer in enumerate(layers):
+
+            if index == (len(model.layers) - 1):
+                new_model.add(layer)
+                continue
+
+            if not any_layer_AF_removed:
+                any_layer_AF_removed = True
+
+                # Randomly remove an activation function from one of layers
+                # Currently, AFR mutation operator will randomly remove the first activation it meets
+                layer.activation = lambda x: x
+                new_model.add(layer)
+                continue
+
+            new_model.add(layer)
+
+        if not any_layer_AF_removed:
+            print('No activation be removed')
+            print('Except the output layer, there is no activation function can be removed')
+
+        return new_model
