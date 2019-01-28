@@ -76,14 +76,54 @@ Model-level mutation operators
 ------------------
 Model-level mutation operators directly mutate the structure and parameters of DNN's structure without training procedure, which is more efficient for mutated model generation. Explicitly, model-level mutation operators automatically analysis structure of given DNN and mutate on a copy of the original DNN, where the generated mutant models are serialized and stored as .h5 file format.  
   
--  GF - Gaussian Fuzzing
--  WS - Weight Shuffling 
--  NEB - Neuron Effect Block
--  NAI - Neuron Activation Inverse
--  NS - Neuron Switch
--  LD - Layer Deactivation
--  LAm - Layer Addition (model-level)
--  AFRm - Activation Function Removal (model-level)
+-  <b>GF - Gaussian Fuzzing:</b>  
+   Target: Trained model (Weight)  
+   Brief Operator Description: Fuzz weight by Gaussian Distribution  
+   Implementation:  
+   1.   
+   
+-  <b>WS - Weight Shuffling:</b>  
+   Target: Trained model (Neuron)  
+   Brief Operator Description: Shuffle weights of selected neurons    
+   Implementation:  
+   1.   
+   
+   
+-  <b>NEB - Neuron Effect Block:</b>  
+   Target: Trained model (Neuron)  
+   Brief Operator Description: Block effect of selected neurons on following layers    
+   Implementation:  
+   1.   
+   
+-  <b>NAI - Neuron Activation Inverse:</b>  
+   Target: Trained model (Neuron)  
+   Brief Operator Description: Invert (the sign) of activation status of selected neurons    
+   Implementation:  
+   1.   
+   
+-  <b>NS - Neuron Switch:</b>  
+   Target: Trained model (Neuron)  
+   Brief Operator Description: Switch neurons among the same layer    
+   Implementation:  
+   1.   
+   
+-  <b>LD - Layer Deactivation:</b>  
+   Target: Trained model (Layer)  
+   Brief Operator Description: Deactivate the effects of a layer    
+   Implementation:  
+   1.   
+   
+-  <b>LAm - Layer Addition (model-level):</b>  
+   Target: Trained model (Layer)  
+   Brief Operator Description: Add (copy) a layer in neural network    
+   Implementation:  
+   1.   
+   
+-  <b>AFRm - Activation Function Removal (model-level):</b>  
+   Target: Trained model (Layer)  
+   Brief Operator Description: Remove activation functions of a layer    
+   Implementation:  
+   1.   
 
 
 Background
@@ -94,7 +134,8 @@ Background
 Configuration
 ----------------
   Python: 3.5.1  
-  Tensorflow: 1.12.0  
+  Tensorflow: 1.11.0  
+  Keras: 2.2.4  
   NumPy: 1.15.1  
 
 
