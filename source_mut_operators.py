@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+import keras
 
 import random
 import math
@@ -8,15 +9,15 @@ import utils
 class ProgramMutationOperators():
     def __init__(self):
         self.LR_mut_candidates = ['Dense', 'BatchNormalization']
-        self.LA_mut_candidates = [tf.keras.layers.ReLU(), tf.keras.layers.BatchNormalization()]
+        self.LA_mut_candidates = [keras.layers.ReLU(), keras.layers.BatchNormalization()]
 
-    def get_random_layer_LA(self):
+    def LA_get_random_layer(self):
         num_of_LA_candidates = len(self.LA_mut_candidates)
         random_index = random.randint(0, num_of_LA_candidates - 1)
         return self.LA_mut_candidates[random_index]
 
     def LR_mut(self, model):
-        new_model = tf.keras.models.Sequential()
+        new_model = keras.models.Sequential()
         layers = [l for l in model.layers]
         any_layer_removed = False
         for index, layer in enumerate(layers):
@@ -41,11 +42,11 @@ class ProgramMutationOperators():
 
         return new_model
 
-    def LA_mut(self, model):
+    def LAs_mut(self, model):
         '''
         Add a layer to the DNN structure, focuing on adding layers like Activation, BatchNormalization
         '''
-        new_model = tf.keras.models.Sequential()
+        new_model = keras.models.Sequential()
         layers = [l for l in model.layers]
         any_layer_added = False
         for index, layer in enumerate(layers):
@@ -60,18 +61,18 @@ class ProgramMutationOperators():
 
                 # Randomly add one of the specified types of layers
                 # Currently, LA mutation operator will randomly add one of specificed types of layers right after input layer
-                new_model.add(self.get_random_layer_LA())
+                new_model.add(self.LA_get_random_layer())
                 continue
 
             new_model.add(layer)
 
         return new_model
 
-    def AFR_mut(self, model):
+    def AFRs_mut(self, model):
         '''
         Remova an activation from one of layers in DNN structure.
         '''
-        new_model = tf.keras.models.Sequential()
+        new_model = keras.models.Sequential()
         layers = [l for l in model.layers]
         any_layer_AF_removed = False
         for index, layer in enumerate(layers):
