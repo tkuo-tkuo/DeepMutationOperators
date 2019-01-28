@@ -31,6 +31,12 @@ class GeneralUtils():
             shuffled_b[new_index] = b[old_index]
         return shuffled_a, shuffled_b
 
+    def print_layer_info(self, layer):
+        layer_config = layer.get_config()
+        print('Print layer configuration information:')
+        for key, value in layer_config.items():
+            print(key, value)
+
     # SMM stands for source-level mutated model 
     # This func looks quite terrible, should be simplified
     def print_messages_SMM_generators(self, mode, train_datas=None, train_labels=None, mutated_datas=None, mutated_labels=None, model=None, mutated_model=None, mutation_ratio=0):
@@ -66,6 +72,14 @@ class GeneralUtils():
             print('Before ' + mode)
             network.evaluate_model(model, test_datas, test_labels)
             print('After ' + mode + ', where the mutation ratio is', mutation_ratio)
+            network.evaluate_model(mutated_model, test_datas, test_labels, mode)
+        elif mode in ['LD', 'LAm', 'AFRm']:
+            print('Before ' + mode)
+            model.summary()
+            network.evaluate_model(model, test_datas, test_labels)
+
+            print('After ' + mode + ', where the mutation ratio is', mutation_ratio)
+            mutated_model.summary()
             network.evaluate_model(mutated_model, test_datas, test_labels, mode)
         else:
             pass
