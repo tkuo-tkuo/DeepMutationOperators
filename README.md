@@ -56,6 +56,17 @@ For each of the mutation operators, it should be capable to generate several mut
    Implementation:  
    1. A specific amount of samples is chosen independently and exclusively for further removal based on mutation ratio. See the illustration in DR Implementation step i.  
    2. Selected samples in the training dataset are removed.  
+      
+   Input: training dataset, training model, and mutation ratio    
+   Output: mutated training dataset by DM operator and copied training model  
+   Syntax:  
+   ```js
+    mutated_dataset, copied_model  = source_mut_opts.DM_mut(training_dataset, model, mutation_ratio)
+   ```
+   Example:  
+   ```js
+    (DM_train_datas, DM_train_labels), DM_model = source_mut_opts.DM_mut((train_datas, train_labels), model, 0.01)
+   ```
    
 -  <b>DF - Data Shuffle:</b>   
    Target: Training dataset  
@@ -63,6 +74,17 @@ For each of the mutation operators, it should be capable to generate several mut
    Implementation:  
    1. A specific amount of samples is chosen independently and exclusivel based on mutation ratio. See the illustration in DR Implementation step i.  
    2. Only the selected samples will be shuffled and the order of unselected samples is preserved.  
+   
+   Input: training dataset, training model, and mutation ratio    
+   Output: mutated training dataset by DF operator and copied training model  
+   Syntax:  
+   ```js
+    mutated_dataset, copied_model  = source_mut_opts.DF_mut(training_dataset, model, mutation_ratio)
+   ```
+   Example:  
+   ```js
+    (DF_train_datas, DF_train_labels), DF_model = source_mut_opts.DF_mut((train_datas, train_labels), model, 0.01)
+   ```
    
 -  <b>NP - Noise Perturb:</b>  
    Target: Training dataset  
