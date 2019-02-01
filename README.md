@@ -22,18 +22,33 @@ For each of the mutation operators, it should be capable to generate several mut
    
    Input: training dataset and untrained model  
    Output: mutated training dataset by DR operator and copied untrained model  
-   
+   Syntax:  
    ```js
-    (DR_train_datas, DR_train_labels), DR_model = source_mut_opts.DR_mut((train_datas, train_labels), model, mutation_ratio)
+    mutated_dataset, copied_model  = source_mut_opts.DR_mut(training_dataset, model, mutation_ratio)
    ```
-   
+   Example:  
+   ```js
+    (DR_train_datas, DR_train_labels), DR_model = source_mut_opts.DR_mut((train_datas, train_labels), model, 0.01)
+   ```
    
 -  <b>LE - Label Error:</b>  
    Target: Training dataset  
    Brief Operator Description: LE operator falsifies a portion of results (e.g., labels) in traning dataset.  
    Implementation:  
    1. A specific amount of samples is chosen independently and exclusively based on mutation ratio. See the illustration in DR Implementation step i.  
-   2. Each result (e.g., label) among the chosen samples is mislabeled by LE operator. For instance, if the set of labels is donated as L, {0, 1, ..., 9}, and the correct label is 0, LE operator will randomly assign a value among L except the correct label 0.  
+   2. Each result (e.g., label) among the chosen samples is mislabeled by LE operator. For instance, if the set of labels is donated as L, {0, 1, ..., 9}, and the correct label is 0, LE operator will randomly assign a value among L except the correct label 0.    
+   
+   Input: training dataset and untrained model  
+   Output: mutated training dataset by LE operator and copied untrained model  
+   Syntax:  
+   ```js
+    mutated_dataset, copied_model  = source_mut_opts.LE_mut(training_dataset, model, label_lower_bound, label_upper_bound, mutation_ratio)
+   ```
+   Example:  
+   ```js
+    (LE_train_datas, LE_train_labels), LE_model = source_mut_opts.LE_mut((train_datas, train_labels), model, 0, 9, 0.01)
+   ```
+   
     
 -  <b>DM - Data Missing :</b>  
    Target: Training dataset  
