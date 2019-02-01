@@ -20,12 +20,35 @@ For each of the mutation operators, it should be capable to generate several mut
    1. A specific amount of samples is chosen independently and exclusively based on mutation ratio. For instance, if there are 5000 samples and mutation ratio is set to be 0.01, 50 samples will be selected for duplication, where the samples should like [sample_3827, sample_2, sample_4999, ..., sample 2387] instead of [sample_1, sample_2, ..., sample_50] or [sample_4951, sample_4952, ..., sample_5000].  
    2. Selected samples are concatenated with the original training dataset.  
    
+   Input: training dataset, training model, and mutation ratio    
+   Output: mutated training dataset by DR operator and copied training model  
+   Syntax:  
+   ```js
+    mutated_dataset, copied_model  = source_mut_opts.DR_mut(training_dataset, model, mutation_ratio)
+   ```
+   Example:  
+   ```js
+    (DR_train_datas, DR_train_labels), DR_model = source_mut_opts.DR_mut((train_datas, train_labels), model, 0.01)
+   ```
+   
 -  <b>LE - Label Error:</b>  
    Target: Training dataset  
    Brief Operator Description: LE operator falsifies a portion of results (e.g., labels) in traning dataset.  
    Implementation:  
    1. A specific amount of samples is chosen independently and exclusively based on mutation ratio. See the illustration in DR Implementation step i.  
-   2. Each result (e.g., label) among the chosen samples is mislabeled by LE operator. For instance, if the set of labels is donated as L, {0, 1, ..., 9}, and the correct label is 0, LE operator will randomly assign a value among L except the correct label 0.  
+   2. Each result (e.g., label) among the chosen samples is mislabeled by LE operator. For instance, if the set of labels is donated as L, {0, 1, ..., 9}, and the correct label is 0, LE operator will randomly assign a value among L except the correct label 0.    
+   
+   Input: training dataset, training model, label lower bound, label upper bound, and mutation ratio    
+   Output: mutated training dataset by LE operator and copied training model  
+   Syntax:  
+   ```js
+    mutated_dataset, copied_model  = source_mut_opts.LE_mut(training_dataset, model, label_lower_bound, label_upper_bound, mutation_ratio)
+   ```
+   Example:  
+   ```js
+    (LE_train_datas, LE_train_labels), LE_model = source_mut_opts.LE_mut((train_datas, train_labels), model, 0, 9, 0.01)
+   ```
+   
     
 -  <b>DM - Data Missing :</b>  
    Target: Training dataset  
@@ -33,6 +56,17 @@ For each of the mutation operators, it should be capable to generate several mut
    Implementation:  
    1. A specific amount of samples is chosen independently and exclusively for further removal based on mutation ratio. See the illustration in DR Implementation step i.  
    2. Selected samples in the training dataset are removed.  
+      
+   Input: training dataset, training model, and mutation ratio    
+   Output: mutated training dataset by DM operator and copied training model  
+   Syntax:  
+   ```js
+    mutated_dataset, copied_model  = source_mut_opts.DM_mut(training_dataset, model, mutation_ratio)
+   ```
+   Example:  
+   ```js
+    (DM_train_datas, DM_train_labels), DM_model = source_mut_opts.DM_mut((train_datas, train_labels), model, 0.01)
+   ```
    
 -  <b>DF - Data Shuffle:</b>   
    Target: Training dataset  
@@ -40,6 +74,17 @@ For each of the mutation operators, it should be capable to generate several mut
    Implementation:  
    1. A specific amount of samples is chosen independently and exclusivel based on mutation ratio. See the illustration in DR Implementation step i.  
    2. Only the selected samples will be shuffled and the order of unselected samples is preserved.  
+   
+   Input: training dataset, training model, and mutation ratio    
+   Output: mutated training dataset by DF operator and copied training model  
+   Syntax:  
+   ```js
+    mutated_dataset, copied_model  = source_mut_opts.DF_mut(training_dataset, model, mutation_ratio)
+   ```
+   Example:  
+   ```js
+    (DF_train_datas, DF_train_labels), DF_model = source_mut_opts.DF_mut((train_datas, train_labels), model, 0.01)
+   ```
    
 -  <b>NP - Noise Perturb:</b>  
    Target: Training dataset  
