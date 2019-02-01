@@ -20,6 +20,14 @@ For each of the mutation operators, it should be capable to generate several mut
    1. A specific amount of samples is chosen independently and exclusively based on mutation ratio. For instance, if there are 5000 samples and mutation ratio is set to be 0.01, 50 samples will be selected for duplication, where the samples should like [sample_3827, sample_2, sample_4999, ..., sample 2387] instead of [sample_1, sample_2, ..., sample_50] or [sample_4951, sample_4952, ..., sample_5000].  
    2. Selected samples are concatenated with the original training dataset.  
    
+   Input: training dataset and untrained model  
+   Output: mutated training dataset by DR operator and copied untrained model  
+   
+   ```js
+    (DR_train_datas, DR_train_labels), DR_model = source_mut_opts.DR_mut((train_datas, train_labels), model, mutation_ratio)
+   ```
+   
+   
 -  <b>LE - Label Error:</b>  
    Target: Training dataset  
    Brief Operator Description: LE operator falsifies a portion of results (e.g., labels) in traning dataset.  
