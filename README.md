@@ -23,11 +23,11 @@ For each of the mutation operators, it should be capable to generate several mut
    Input: training dataset, training model, and mutation ratio    
    Output: mutated training dataset by DR operator and copied training model  
    Syntax:  
-   ```js
+   ```python
     mutated_dataset, copied_model  = source_mut_opts.DR_mut(training_dataset, model, mutation_ratio)
    ```
    Example:  
-   ```js
+   ```python
     (DR_train_datas, DR_train_labels), DR_model = source_mut_opts.DR_mut((train_datas, train_labels), model, 0.01)
    ```
    
@@ -41,11 +41,11 @@ For each of the mutation operators, it should be capable to generate several mut
    Input: training dataset, training model, label lower bound, label upper bound, and mutation ratio    
    Output: mutated training dataset by LE operator and copied training model  
    Syntax:  
-   ```js
+   ```python
     mutated_dataset, copied_model  = source_mut_opts.LE_mut(training_dataset, model, label_lower_bound, label_upper_bound, mutation_ratio)
    ```
    Example:  
-   ```js
+   ```python
     (LE_train_datas, LE_train_labels), LE_model = source_mut_opts.LE_mut((train_datas, train_labels), model, 0, 9, 0.01)
    ```
    
@@ -60,11 +60,11 @@ For each of the mutation operators, it should be capable to generate several mut
    Input: training dataset, training model, and mutation ratio    
    Output: mutated training dataset by DM operator and copied training model  
    Syntax:  
-   ```js
+   ```python
     mutated_dataset, copied_model  = source_mut_opts.DM_mut(training_dataset, model, mutation_ratio)
    ```
    Example:  
-   ```js
+   ```python
     (DM_train_datas, DM_train_labels), DM_model = source_mut_opts.DM_mut((train_datas, train_labels), model, 0.01)
    ```
    
@@ -78,11 +78,11 @@ For each of the mutation operators, it should be capable to generate several mut
    Input: training dataset, training model, and mutation ratio    
    Output: mutated training dataset by DF operator and copied training model  
    Syntax:  
-   ```js
+   ```python
     mutated_dataset, copied_model  = source_mut_opts.DF_mut(training_dataset, model, mutation_ratio)
    ```
    Example:  
-   ```js
+   ```python
     (DF_train_datas, DF_train_labels), DF_model = source_mut_opts.DF_mut((train_datas, train_labels), model, 0.01)
    ```
    
@@ -91,7 +91,21 @@ For each of the mutation operators, it should be capable to generate several mut
    Brief Operator Description: Add noise to a portion of training dataset  
    Implementation:  
    1. A specific amount of samples is chosen independently and exclusivel based on mutation ratio. See the illustration in DR Implementation step i.  
-   2. Noises are appended on each of the selected datasets. Since raw data in the training dataset are rescaled in the range between 0 and 1, the value of noises follows normal distribution N(0, 0.1^2), where standard deviation parameter is a user-configurable parameter with default value 0.1.    
+   2. Noises are appended on each of the selected datasets. Since raw data in the training dataset are rescaled in the range between 0 and 1, the value of noises follows normal distribution, where standard deviation parameter is a user-configurable parameter with default value 0.1 and mean is 0.    
+      
+   Input: training dataset, training model, and mutation ratio    
+   Output: mutated training dataset by DF operator and copied training model  
+   Syntax:  
+   ```python
+    mutated_dataset, copied_model  = source_mut_opts.NP_mut(training_dataset, model, mutation_ratio, STD=0.1)
+   ```
+   Example:  
+   ```python
+    # Without specification of standard deviation parameter (STD), STD is set to 0.1 as default
+    (NP_train_datas, NP_train_labels), NP_model = source_mut_opts.NP_mut((train_datas, train_labels), model, 0.01)
+    # Usage with specification of STD value as 2
+    (NP_train_datas, NP_train_labels), NP_model = source_mut_opts.NP_mut((train_datas, train_labels), model, 0.01, 2)
+   ```
    
 -  <b>LR - Layer Removal:</b>  
    Target: Training program  
