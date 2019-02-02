@@ -127,13 +127,27 @@ For each of the mutation operators, it should be capable to generate several mut
   
    Remarks that in my implementation, the input layer and output layer will not be included in the consideration.   
    
--  <b>LAs - Layer Addition (source-level):</b>  
+-  <b>LAs - Layer Addition for source-level:</b>  
    Target: Training program  
-   Brief Operator Description: Add a layer   
+   Brief Operator Description: Randomly add a layer to one of suitable spots in the deep learning model  
    Implementation:  
-   1. According to the paper, DeepMutation: Mutation Testing of Deep Learning Systems, LAs operator mainly focuses on adding layers like Activation, BatchNormalization. More types of layers should be considered in the future implementation once addition of a layer will not generate obviously different Deep Learning model from the original one, where unqualified mutant can be filtered out.   
+   1. LAs operator traverses through the entire structure of deep learning model and record all the spots where a layer can be added.   
+   2. According to the paper, DeepMutation: Mutation Testing of Deep Learning Systems, LAs operator mainly focuses on adding layers like Activation, BatchNormalization. More types of layers should be considered in the future implementation once addition of a layer will not generate obviously different Deep Learning model from the original one, where unqualified mutant can be filtered out.   
+  
+   Input: training dataset and training model  
+   Output: copied training dataset by LAs operator and mutated training model  
+   Syntax:  
+   ```python
+    copied_dataset, mutated_model  = source_mut_opts.LAs_mut(training_dataset, model)
+   ```
+   Example:  
+   ```python
+    (LAs_train_datas, LAs_train_labels), LAs_model = source_mut_opts.LAs_mut((train_datas, train_labels), model)
+   ```
+  
+   Remarks that in my implementation, the output layer will not be included in the consideration.   
 
--  <b>AFRs - Activation Function Removal (source-level):</b>  
+-  <b>AFRs - Activation Function Removal for source-level:</b>  
    Target: Training program  
    Brief Operator Description: Remove activation layers of a layer    
    Implementation:  
