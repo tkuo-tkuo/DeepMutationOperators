@@ -149,10 +149,21 @@ For each of the mutation operators, it should be capable to generate several mut
 
 -  <b>AFRs - Activation Function Removal for source-level:</b>  
    Target: Training program  
-   Brief Operator Description: Remove activation layers of a layer    
+   Brief Operator Description: Remove activation layers of a randomly selected layer    
    Implementation:  
-   1. AFRs randomly remove all activation functions of a layer.  
-  
+   1. AFRs operator traverses through the entire structure of deep learning model and record all the layers with activation functions except the output layer.  
+   1. AFRs randomly remove all activation functions of a randomly selected layer.  
+     
+   Input: training dataset and training model  
+   Output: copied training dataset by AFRs operator and mutated training model  
+   Syntax:  
+   ```python
+    copied_dataset, mutated_model  = source_mut_opts.AFRs_mut(training_dataset, model)
+   ```
+   Example:  
+   ```python
+    (AFRs_train_datas, AFRs_train_labels), AFRs_model = source_mut_opts.AFRs_mut((train_datas, train_labels), model)
+   ```
    Remarks that in my implementation, the activation functions of the output layer will not be included in the consideration. For instance, the value after activation function, softmax, of the output layer reflects the level of confidence. It may be better not to eliminate the activation functions of the output layer.  
    
 Model-level mutation operators 
