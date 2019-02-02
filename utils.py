@@ -1,5 +1,7 @@
-import random
 import numpy as np
+import keras
+
+import random 
 
 class GeneralUtils():
 
@@ -7,11 +9,8 @@ class GeneralUtils():
         pass
 
     def decision(self, prob):
-        '''
-        Return True with the prob
-        
-        Note that random.random() returns floating point number in the range [0.0, 1.0)
-        '''
+        # Return True with the prob
+        # Note that random.random() returns floating point number in the range [0.0, 1.0)
         return random.random() < prob
 
     def shuffle(self, a):
@@ -31,6 +30,18 @@ class GeneralUtils():
             shuffled_b[new_index] = b[old_index]
         return shuffled_a, shuffled_b
 
+    def shuffle_in_uni_with_permutation(self, a, b, permutation):
+        assert len(a) == len(b)
+        shuffled_a, shuffled_b = a.copy(), b.copy()
+        shuffled_permutation = self.shuffle(permutation)
+
+        for index in range(len(permutation)):
+            old_index, new_index = permutation[index], shuffled_permutation[index]
+            shuffled_a[new_index] = a[old_index]
+            shuffled_b[new_index] = b[old_index]
+            
+        return shuffled_a, shuffled_b
+
     def print_layer_info(self, layer):
         layer_config = layer.get_config()
         print('Print layer configuration information:')
@@ -39,7 +50,7 @@ class GeneralUtils():
 
     # SMM stands for source-level mutated model 
     # This func looks quite terrible, should be simplified
-    def print_messages_SMM_generators(self, mode, train_datas=None, train_labels=None, mutated_datas=None, mutated_labels=None, model=None, mutated_model=None, mutation_ratio=0):
+    def print_messages_SMO(self, mode, train_datas=None, train_labels=None, mutated_datas=None, mutated_labels=None, model=None, mutated_model=None, mutation_ratio=0):
         if mode == 'DR' or mode == 'DM':
             print('Before ' + mode)
             print('Train data shape:', train_datas.shape)
@@ -84,3 +95,30 @@ class GeneralUtils():
         else:
             pass
 
+class ModelUtils():
+
+    def __init__(self):
+        pass
+
+    def model_copy(self, model, mode):
+        suffix = '_copy_' + mode 
+        new_model = keras.models._clone_sequential_model(model)
+        for layer in new_model.layers:
+            layer.name = layer.name + suffix
+
+        new_model.name = new_model.name + suffix
+        return new_model
+
+class ExaminationalUtils():
+
+    def __init__(self):
+        pass
+
+    def mutation_ratio_range_check(self, mutation_ratio):
+        assert mutation_ratio >= 0, 'Mutation ratio attribute should in the range [0, 1]'
+        assert mutation_ratio <= 1, 'Mutation ratio attribute should in the range [0, 1]'
+        pass 
+
+    def training_dataset_consistent_length_check(self, lst_a, lst_b):
+        assert len(lst_a) == len(lst_b), 'Training datas and labels should have the same length'
+        pass
