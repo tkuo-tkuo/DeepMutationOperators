@@ -109,11 +109,21 @@ For each of the mutation operators, it should be capable to generate several mut
    
 -  <b>LR - Layer Removal:</b>  
    Target: Training program  
-   Brief Operator Description: Remove a layer   
+   Brief Operator Description: Remove a randomly selected layer which satisfies conditions  
    Implementation:  
-   1. LR operator randomly deletes a layer on the condition that the input and output structure of the deleted layer are the same. It traverses the entire structure of Deep Learning model and records all the layers where the condition is satisfied.  
-   2. According to the paper, DeepMutation: Mutation Testing of Deep Learning Systems, LR mutation operator mainly focuses on layers (e.g., Dense, BatchNormalization layer), whose deletion doesn't make too much influence on the mutated model, since arbitrary removal of a layer may generate obviously different Deep Learning model from the original one.  
-   3. One of the selected layers which are recorded in step i. and satisfies the requirement of step ii. is randomly removed  
+   1. LR operator traverses through the entire structure of deep learning model and record all the layers where conditions are satisfied. The first condition is that the input and output shape of a layer should be the same. The second condition is that, according to the paper, DeepMutation: Mutation Testing of Deep Learning Systems, LR mutation operator mainly focuses on layers (e.g., Dense, BatchNormalization layer), whose deletion doesn't make too much influence on the mutated model, since arbitrary removal of a layer may generate obviously different Deep Learning model from the original one.  
+   2. One of the selected layers is randomly removed from the deep learning model.  
+   
+   Input: training dataset and training model  
+   Output: copied training dataset by LR operator and mutated training model  
+   Syntax:  
+   ```python
+    copied_dataset, mutated_model  = source_mut_opts.LR_mut(training_dataset, model)
+   ```
+   Example:  
+   ```python
+    (LR_train_datas, LR_train_labels), LR_model = source_mut_opts.LR_mut((train_datas, train_labels), model)
+   ```
   
    Remarks that in my implementation, the input layer and output layer will not be included in the consideration.   
    
