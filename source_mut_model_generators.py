@@ -21,33 +21,14 @@ class SourceMutatedModelGenerators():
     def integration_test(self, verbose=False, with_checkpoint=False):
         mutation_ratios = [0.1]
         for mutation_ratio in mutation_ratios:
-            # self.generate_model_by_DR_mutation('DR_model', mutation_ratio, verbose=verbose, with_checkpoint=with_checkpoint)
-            # self.generate_model_by_LE_mutation('LE_model', mutation_ratio, verbose=verbose, with_checkpoint=with_checkpoint)
-            # self.generate_model_by_DM_mutation('DM_model', mutation_ratio, verbose=verbose, with_checkpoint=with_checkpoint)
-            # self.generate_model_by_DF_mutation('DF_model', mutation_ratio, verbose=verbose, with_checkpoint=with_checkpoint)
-            # self.generate_model_by_NP_mutation('NP_model', mutation_ratio, verbose=verbose, with_checkpoint=with_checkpoint)
-            # self.generate_model_by_LR_mutation('LR_model', verbose=verbose, with_checkpoint=with_checkpoint)
-            # self.generate_model_by_LAs_mutation('LAs_model', verbose=verbose, with_checkpoint=with_checkpoint)
+            self.generate_model_by_DR_mutation('DR_model', mutation_ratio, verbose=verbose, with_checkpoint=with_checkpoint)
+            self.generate_model_by_LE_mutation('LE_model', mutation_ratio, verbose=verbose, with_checkpoint=with_checkpoint)
+            self.generate_model_by_DM_mutation('DM_model', mutation_ratio, verbose=verbose, with_checkpoint=with_checkpoint)
+            self.generate_model_by_DF_mutation('DF_model', mutation_ratio, verbose=verbose, with_checkpoint=with_checkpoint)
+            self.generate_model_by_NP_mutation('NP_model', mutation_ratio, verbose=verbose, with_checkpoint=with_checkpoint)
+            self.generate_model_by_LR_mutation('LR_model', verbose=verbose, with_checkpoint=with_checkpoint)
+            self.generate_model_by_LAs_mutation('LAs_model', verbose=verbose, with_checkpoint=with_checkpoint)
             self.generate_model_by_AFRs_mutation('AFRs_model', verbose=verbose, with_checkpoint=with_checkpoint)
-
-
-        # try:
-        #     for mutation_ratio in mutation_ratios:
-        #         self.network.train_and_save_normal_model('normal_model', verbose=verbose, with_checkpoint=with_checkpoint)
-        #         self.generate_model_by_DR_mutation('DR_model', mutation_ratio, verbose=verbose, with_checkpoint=with_checkpoint)
-        #         self.generate_model_by_LE_mutation('LE_model', mutation_ratio, verbose=verbose, with_checkpoint=with_checkpoint)
-        #         self.generate_model_by_DM_mutation('DM_model', mutation_ratio, verbose=verbose, with_checkpoint=with_checkpoint)
-        #         self.generate_model_by_DF_mutation('DF_model', verbose=verbose, with_checkpoint=with_checkpoint)
-        #         self.generate_model_by_NP_mutation('NP_model', mutation_ratio, verbose=verbose, with_checkpoint=with_checkpoint)
-        #         self.generate_model_by_LR_mutation('LR_model', verbose=verbose, with_checkpoint=with_checkpoint)
-        #         self.generate_model_by_LAs_mutation('LAs_model', verbose=verbose, with_checkpoint=with_checkpoint)
-        #         self.generate_model_by_AFRs_mutation('AFRs_model', verbose=verbose, with_checkpoint=with_checkpoint)
-                
-        #     print('Integration test for source-level mutation operators: PASS')
-        # except Exception as e:
-        #     print('Integration test for source-level mutation operators: FAIL')
-        #     print('Error message:', e)
-    
 
     def generate_model_by_DR_mutation(self, name_of_file, mutation_ratio, verbose=False, with_checkpoint=False):
         mode ='DR'
