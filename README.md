@@ -215,14 +215,26 @@ Model-level mutation operators directly mutate the structure and parameters of D
    ```
    
    Remarks that biases are excluded for consideration and WS mutation operator for convolutional layer is still under development.  
-
-   
-   
+     
 -  <b>NEB - Neuron Effect Block:</b>  
    Target: Trained model (Neuron)  
    Brief Operator Description: Block effect of selected neurons on following layers    
    Implementation:  
-   1.   
+   1. Except for the output layer, for each layer, select neurons independently and exclusively based on the mutation ratio.  
+   2. Block the effect of selected neurons by setting all the weights connecting to next layer as 0.  
+   
+   Input: trained model and mutation ratio  
+   Output: mutated trained model   
+   Syntax:  
+   ```python
+   mutated_model  = model_mut_opts.NEB_mut(model, mutation_ratio)
+   ```
+   Example:  
+   ```python
+   NEB_model = model_mut_opts.NEB_mut(model, 0.01)
+   ```
+   
+   Remarks that biases are excluded for consideration.
    
 -  <b>NAI - Neuron Activation Inverse:</b>  
    Target: Trained model (Neuron)  
