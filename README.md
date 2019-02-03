@@ -334,7 +334,7 @@ Model-level mutation operators directly mutate the structure and parameters of D
    ```
    
    Remarks that in my implementation, the activation functions of the output layer will not be included in the consideration. For instance, the value after activation function, softmax, of the output layer reflects the level of confidence. It may be better not to eliminate the activation functions of the output layer.
-.  
+    
 Background
 ----------------
   (some background information about mutation operators will be added here)
