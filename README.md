@@ -299,7 +299,21 @@ Model-level mutation operators directly mutate the structure and parameters of D
    Target: Trained model (Layer)  
    Brief Operator Description: Randomly Add (copy) a layer of previous layer to one of suitable spots in deep learning model      
    Implementation:  
-   1.   
+   1. LAm operator traverses through the entire structure of deep learning model and record all the spots where a layer can be added. The condition is that the shape of input and output should be consistent to avoid breaking the original DNNs.  
+   2. A layer is randomly added in one of the suitable spots.  
+   
+   Input: trained model  
+   Output: mutated trained model   
+   Syntax:  
+   ```python
+   mutated_model  = model_mut_opts.LAm_mut(model)
+   ```
+   Example:  
+   ```python
+   LAm_model = model_mut_opts.LAm_mut(model)
+   ```
+   
+    Remarks LAm is quite similar to LAs operator, both of them add a layer within the deep learning constriction where the input and output must be the same. The only difference is that the weights of the newly added layer in LAm need to be copied from the previous layer.  
    
 -  <b>AFRm - Activation Function Removal (model-level):</b>  
    Target: Trained model (Layer)  
