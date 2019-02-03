@@ -201,7 +201,6 @@ Model-level mutation operators directly mutate the structure and parameters of D
    Implementation:  
    1.  Except for the input layer, for each layer, select neurons independently and exclusively based on the mutation ratio 
    2.  Shuffle the weights of each neuron's connections to the previous layer. For instance, the weights of Dense layer are stored in a matrix (2-dimension list) m * n. If neuron j is selected, all the weights w[:, j] connecting to neuron j are extracted, shuffled, and injected back in a matrix.  
-   To visualize, if weights are stored in a matrix, several columns are chosen and all elements in each of the selected columns are shuffled.  
    
    Input: trained model and mutation ratio  
    Output: mutated trained model   
@@ -240,7 +239,21 @@ Model-level mutation operators directly mutate the structure and parameters of D
    Target: Trained model (Neuron)  
    Brief Operator Description: Invert (the sign) of activation status of selected neurons    
    Implementation:  
-   1.   
+   1. Except for the input layer, for each layer, select neurons independently and exclusively based on the mutation ratio.  
+   2. According to the paper, DeepMutation: Mutation Testing of Deep Learning Systems, invertion of the activation status of a neuron can be achieved by changing the sign of a neuron's value before applying its activation function. This can be actually achieved by multiplying -1 to all the weights connecting on the previous layer of selected neurons since the output value of a neuron before applying its activation function is the sum of product connecting to a neuron.  
+    
+   Input: trained model and mutation ratio  
+   Output: mutated trained model   
+   Syntax:  
+   ```python
+   mutated_model  = model_mut_opts.NAI_mut(model, mutation_ratio)
+   ```
+   Example:  
+   ```python
+   NAI_model = model_mut_opts.NAI_mut(model, 0.01)
+   ```
+   
+   Remarks that NAI mutation operator for convolutional layer is still under development.  
    
 -  <b>NS - Neuron Switch:</b>  
    Target: Trained model (Neuron)  
