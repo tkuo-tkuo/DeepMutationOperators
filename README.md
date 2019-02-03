@@ -172,7 +172,7 @@ Model-level mutation operators
 Model-level mutation operators directly mutate the structure and parameters of DNN's structure without training procedure, which is more efficient for mutated model generation. Explicitly, model-level mutation operators automatically analysis structure of given DNN and mutate on a copy of the original DNN, where the generated mutant models are serialized and stored as .h5 file format.  
   
 -  <b>GF - Gaussian Fuzzing:</b>  
-   Target: Trained model (Weights)  
+   Target: Trained model (Weight)  
    Brief Operator Description: Fuzz a portion of weights in trained model by Gaussian Distribution   
    Implementation:  
    1. For weights of each layer, GF flattens weights of each layer to a one-dimensional list, since GF does not need to recognize the relationship between neurons. A one-dimensional list will be handy for manipulation.  
@@ -188,18 +188,34 @@ Model-level mutation operators directly mutate the structure and parameters of D
    Example:  
    ```python
     # Without specification of standard deviation parameter (STD), STD is set to 0.1 as default
-    GF_model = model_mut_opts.GF_mut(model, mutation_ratio)
+    GF_model = model_mut_opts.GF_mut(model, 0.01)
     # Usage with specification of STD value as 2
-    GF_model = model_mut_opts.GF_mut(model, mutation_ratio, STD=2)
+    GF_model = model_mut_opts.GF_mut(model, 0.01, STD=2)
    ```
    
    Remarks that GF mutation operator works well with Dense, Activation, batch normalization. However, it's not guaranteed for convolutional layer yet. It's still under development.  
    
 -  <b>WS - Weight Shuffling:</b>  
    Target: Trained model (Neuron)  
-   Brief Operator Description: Shuffle weights of selected neurons    
+   Brief Operator Description: Shuffle weights to which selected neurons connect to previous layer   
    Implementation:  
-   1.   
+   1.  Except for the input layer, for each layer, select neurons independently and exclusively based on the mutation ratio 
+   2.  Shuffle the weights of each neuron's connections to the previous layer. For instance, the weights of Dense layer are stored in a matrix (2-dimension list) m * n. If neuron j is selected, all the weights w[:, j] connecting to neuron j are extracted, shuffled, and injected back in a matrix.  
+   To visualize, if weights are stored in a matrix, several columns are chosen and all elements in each of the selected columns are shuffled.  
+   
+   Input: trained model and mutation ratio  
+   Output: mutated trained model   
+   Syntax:  
+   ```python
+   mutated_model  = model_mut_opts.WS_mut(model, mutation_ratio)
+   ```
+   Example:  
+   ```python
+   WS_model = model_mut_opts.WS_mut(model, 0.01)
+   ```
+   
+   Remarks that biases are excluded for consideration and WS mutation operator for convolutional layer is still under development.  
+
    
    
 -  <b>NEB - Neuron Effect Block:</b>  
