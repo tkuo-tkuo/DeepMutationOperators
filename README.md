@@ -21,7 +21,7 @@ For each of the mutation operators, it should be capable to generate several mut
    2. Selected samples are concatenated with the original training dataset.  
    
    Input: training dataset, training model, and mutation ratio    
-   Output: mutated training dataset by DR operator and copied training model  
+   Output: mutated training dataset and copied training model  
    Syntax:  
    ```python
     mutated_dataset, copied_model  = source_mut_opts.DR_mut(training_dataset, model, mutation_ratio)
@@ -39,7 +39,7 @@ For each of the mutation operators, it should be capable to generate several mut
    2. Each result (e.g., label) among the chosen samples is mislabeled by LE operator. For instance, if the set of labels is donated as L, {0, 1, ..., 9}, and the correct label is 0, LE operator will randomly assign a value among L except the correct label 0.    
    
    Input: training dataset, training model, label lower bound, label upper bound, and mutation ratio    
-   Output: mutated training dataset by LE operator and copied training model  
+   Output: mutated training dataset and copied training model  
    Syntax:  
    ```python
     mutated_dataset, copied_model  = source_mut_opts.LE_mut(training_dataset, model, label_lower_bound, label_upper_bound, mutation_ratio)
@@ -58,7 +58,7 @@ For each of the mutation operators, it should be capable to generate several mut
    2. Selected samples in the training dataset are removed.  
       
    Input: training dataset, training model, and mutation ratio    
-   Output: mutated training dataset by DM operator and copied training model  
+   Output: mutated training dataset and copied training model  
    Syntax:  
    ```python
     mutated_dataset, copied_model  = source_mut_opts.DM_mut(training_dataset, model, mutation_ratio)
@@ -76,7 +76,7 @@ For each of the mutation operators, it should be capable to generate several mut
    2. Only the selected samples will be shuffled and the order of unselected samples is preserved.  
    
    Input: training dataset, training model, and mutation ratio    
-   Output: mutated training dataset by DF operator and copied training model  
+   Output: mutated training dataset and copied training model  
    Syntax:  
    ```python
     mutated_dataset, copied_model  = source_mut_opts.DF_mut(training_dataset, model, mutation_ratio)
@@ -94,7 +94,7 @@ For each of the mutation operators, it should be capable to generate several mut
    2. Noises are appended on each of the selected datasets. Since raw data in the training dataset are rescaled in the range between 0 and 1, the value of noises follows normal distribution, where standard deviation parameter is a user-configurable parameter with default value 0.1 and mean is 0.    
       
    Input: training dataset, training model, and mutation ratio    
-   Output: mutated training dataset by DF operator and copied training model  
+   Output: mutated training dataset and copied training model  
    Syntax:  
    ```python
     mutated_dataset, copied_model  = source_mut_opts.NP_mut(training_dataset, model, mutation_ratio, STD=0.1)
@@ -104,7 +104,7 @@ For each of the mutation operators, it should be capable to generate several mut
     # Without specification of standard deviation parameter (STD), STD is set to 0.1 as default
     (NP_train_datas, NP_train_labels), NP_model = source_mut_opts.NP_mut((train_datas, train_labels), model, 0.01)
     # Usage with specification of STD value as 2
-    (NP_train_datas, NP_train_labels), NP_model = source_mut_opts.NP_mut((train_datas, train_labels), model, 0.01, 2)
+    (NP_train_datas, NP_train_labels), NP_model = source_mut_opts.NP_mut((train_datas, train_labels), model, 0.01, STD=2)
    ```
    
 -  <b>LR - Layer Removal:</b>  
@@ -115,7 +115,7 @@ For each of the mutation operators, it should be capable to generate several mut
    2. One of the selected layers is randomly removed from the deep learning model.  
    
    Input: training dataset and training model  
-   Output: copied training dataset by LR operator and mutated training model  
+   Output: copied training dataset and mutated training model  
    Syntax:  
    ```python
     copied_dataset, mutated_model  = source_mut_opts.LR_mut(training_dataset, model)
@@ -135,7 +135,7 @@ For each of the mutation operators, it should be capable to generate several mut
    2. According to the paper, DeepMutation: Mutation Testing of Deep Learning Systems, LAs operator mainly focuses on adding layers like Activation, BatchNormalization. More types of layers should be considered in the future implementation once addition of a layer will not generate obviously different Deep Learning model from the original one, where unqualified mutant can be filtered out.   
   
    Input: training dataset and training model  
-   Output: copied training dataset by LAs operator and mutated training model  
+   Output: copied training dataset and mutated training model  
    Syntax:  
    ```python
     copied_dataset, mutated_model  = source_mut_opts.LAs_mut(training_dataset, model)
@@ -155,7 +155,7 @@ For each of the mutation operators, it should be capable to generate several mut
    1. AFRs randomly remove all activation functions of a randomly selected layer.  
      
    Input: training dataset and training model  
-   Output: copied training dataset by AFRs operator and mutated training model  
+   Output: copied training dataset and mutated training model  
    Syntax:  
    ```python
     copied_dataset, mutated_model  = source_mut_opts.AFRs_mut(training_dataset, model)
@@ -164,6 +164,7 @@ For each of the mutation operators, it should be capable to generate several mut
    ```python
     (AFRs_train_datas, AFRs_train_labels), AFRs_model = source_mut_opts.AFRs_mut((train_datas, train_labels), model)
    ```
+   
    Remarks that in my implementation, the activation functions of the output layer will not be included in the consideration. For instance, the value after activation function, softmax, of the output layer reflects the level of confidence. It may be better not to eliminate the activation functions of the output layer.  
    
 Model-level mutation operators 
@@ -171,10 +172,28 @@ Model-level mutation operators
 Model-level mutation operators directly mutate the structure and parameters of DNN's structure without training procedure, which is more efficient for mutated model generation. Explicitly, model-level mutation operators automatically analysis structure of given DNN and mutate on a copy of the original DNN, where the generated mutant models are serialized and stored as .h5 file format.  
   
 -  <b>GF - Gaussian Fuzzing:</b>  
-   Target: Trained model (Weight)  
-   Brief Operator Description: Fuzz weight by Gaussian Distribution  
+   Target: Trained model (Weights)  
+   Brief Operator Description: Fuzz a portion of weights in trained model by Gaussian Distribution   
    Implementation:  
-   1.   
+   1. For weights of each layer, GF flattens weights of each layer to a one-dimensional list, since GF does not need to recognize the relationship between neurons. A one-dimensional list will be handy for manipulation.  
+	 2.  GF mutation operator chooses elements among the one-dimensional list independently and exclusively based on mutation ratio.  
+	 3. GF mutation operators add noise on selected weight, where the noise follows normal distribution ~N(0, std^2). The standard deviation parameter is user-configurable with default value as 0.01.  
+   
+   Input: trained model, mutation ratio, and standard deviation   
+   Output: mutated trained model   
+   Syntax:  
+   ```python
+    mutated_model  = model_mut_opts.GF_mut(model, mutation_ratio, STD=0.1)
+   ```
+   Example:  
+   ```python
+    # Without specification of standard deviation parameter (STD), STD is set to 0.1 as default
+    GF_model = model_mut_opts.GF_mut(model, mutation_ratio)
+    # Usage with specification of STD value as 2
+    GF_model = model_mut_opts.GF_mut(model, mutation_ratio, STD=2)
+   ```
+   
+   Remarks that GF mutation operator works well with Dense, Activation, batch normalization. However, it's not guaranteed for convolutional layer yet. It's still under development.  
    
 -  <b>WS - Weight Shuffling:</b>  
    Target: Trained model (Neuron)  
