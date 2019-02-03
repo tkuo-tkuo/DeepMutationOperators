@@ -89,7 +89,7 @@ class GeneralUtils():
             model.summary()
             network.evaluate_model(model, test_datas, test_labels)
 
-            print('After ' + mode + ', where the mutation ratio is', mutation_ratio)
+            print('After ' + mode)
             mutated_model.summary()
             network.evaluate_model(mutated_model, test_datas, test_labels, mode)
         else:
@@ -100,11 +100,16 @@ class ModelUtils():
     def __init__(self):
         pass
 
-    def model_copy(self, model, mode):
+    def model_copy(self, model, mode=''):
+        original_layers = [l for l in model.layers]
         suffix = '_copy_' + mode 
-        new_model = keras.models._clone_sequential_model(model)
-        for layer in new_model.layers:
+        new_model = keras.models.clone_model(model)
+        for index, layer in enumerate(new_model.layers):
+            original_layer = original_layers[index]
+            original_weights = original_layer.get_weights()
+
             layer.name = layer.name + suffix
+            layer.set_weights(original_weights)
 
         new_model.name = new_model.name + suffix
         return new_model
