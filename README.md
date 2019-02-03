@@ -277,19 +277,33 @@ Model-level mutation operators directly mutate the structure and parameters of D
    
 -  <b>LD - Layer Deactivation:</b>  
    Target: Trained model (Layer)  
-   Brief Operator Description: Deactivate the effects of a layer    
+   Brief Operator Description: Deactivate the effects of a randomly selected layer which satisfies conditions    
    Implementation:  
-   1.   
+   1. LD operator traverses through the entire structure of deep learning model and record all the layers which are suitable.  Note that simply removing a layer from a trained deep learning model can break the model structure. LD is restricted to mutate layers whose input and output shapes are consistent.  
+   2. One of the selected layers is randomly removed from the deep learning model.  
+           
+   Input: trained model  
+   Output: mutated trained model   
+   Syntax:  
+   ```python
+   mutated_model  = model_mut_opts.LD_mut(model)
+   ```
+   Example:  
+   ```python
+   LD_model = model_mut_opts.LD_mut(model)
+   ```
+   
+   Remarks that the input and output layer should not be removed since the removal of input and output mutate the model to which totally different from the original one.  
    
 -  <b>LAm - Layer Addition (model-level):</b>  
    Target: Trained model (Layer)  
-   Brief Operator Description: Add (copy) a layer in neural network    
+   Brief Operator Description: Randomly Add (copy) a layer of previous layer to one of suitable spots in deep learning model      
    Implementation:  
    1.   
    
 -  <b>AFRm - Activation Function Removal (model-level):</b>  
    Target: Trained model (Layer)  
-   Brief Operator Description: Remove activation functions of a layer    
+   Brief Operator Description: Remove activation functions of a randomly selected layer    
    Implementation:  
    1.   
 
