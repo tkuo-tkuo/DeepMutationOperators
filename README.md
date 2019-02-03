@@ -257,9 +257,23 @@ Model-level mutation operators directly mutate the structure and parameters of D
    
 -  <b>NS - Neuron Switch:</b>  
    Target: Trained model (Neuron)  
-   Brief Operator Description: Switch neurons among the same layer    
+   Brief Operator Description: Switch two neurons (shuffle neurons) of the same layer  
    Implementation:  
-   1.   
+   1. Select neurons independently and exclusively based on the mutation ratio for each layer.  
+   2. Switch (shuffle) selected neurons. If weights are stored in a matrix, NS switch rows without altering the order of elements within each row.  
+       
+   Input: trained model and mutation ratio  
+   Output: mutated trained model   
+   Syntax:  
+   ```python
+   mutated_model  = model_mut_opts.NS_mut(model, mutation_ratio)
+   ```
+   Example:  
+   ```python
+   NS_model = model_mut_opts.NS_mut(model, 0.01)
+   ```
+   
+   Remarks that since NS mutation operator should generate various mutant based on different mutation ratio given. If you switch neurons multiple times, it's the same effect of shuffle a portion of neurons.
    
 -  <b>LD - Layer Deactivation:</b>  
    Target: Trained model (Layer)  
