@@ -57,7 +57,7 @@ class SimplyNetwork():
                       metrics=['accuracy'])
         return model
 
-    def train_model(self, model, train_datas, train_labels, name_of_file, epochs=20, batch_size=None, with_checkpoint=False):
+    def train_model(self, model, train_datas, train_labels, name_of_file=None, epochs=20, batch_size=None, with_checkpoint=False):
         if with_checkpoint:
             prefix = ''
             filepath = prefix + name_of_file + '-{epoch:02d}-{loss:.4f}.h5'
