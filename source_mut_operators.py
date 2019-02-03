@@ -24,7 +24,6 @@ class SourceMutationOperators():
     def LR_model_scan(self, model):
         index_of_suitable_layers = []
         layers = [l for l in model.layers]
-        any_layer_removed = False
         for index, layer in enumerate(layers):
             layer_name = type(layer).__name__
             is_in_candidates = layer_name in self.LR_mut_candidates
@@ -181,7 +180,6 @@ class SourceMutationOperators():
         # Remove randomly select layer 
         new_model = keras.models.Sequential()
         layers = [l for l in deep_copied_model.layers]
-        any_layer_removed = False
         for index, layer in enumerate(layers):
             if index == random_picked_layer_index:
                 continue
