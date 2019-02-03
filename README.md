@@ -319,9 +319,22 @@ Model-level mutation operators directly mutate the structure and parameters of D
    Target: Trained model (Layer)  
    Brief Operator Description: Remove activation functions of a randomly selected layer    
    Implementation:  
-   1.   
-
-
+   1. AFRm operator traverses through the entire structure of deep learning model and record all the layers with activation functions except the output layer.  
+   2. AFRm randomly remove all activation functions of a randomly selected layer.  
+      
+   Input: trained model  
+   Output: mutated trained model   
+   Syntax:  
+   ```python
+   mutated_model  = model_mut_opts.AFRm_mut(model)
+   ```
+   Example:  
+   ```python
+   AFRm_model = model_mut_opts.AFRm_mut(model)
+   ```
+   
+   Remarks that in my implementation, the activation functions of the output layer will not be included in the consideration. For instance, the value after activation function, softmax, of the output layer reflects the level of confidence. It may be better not to eliminate the activation functions of the output layer.
+.  
 Background
 ----------------
   (some background information about mutation operators will be added here)
