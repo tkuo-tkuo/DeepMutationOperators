@@ -1,17 +1,17 @@
 # DeepMutation
 
-It's a repository, which aims to implement mutation operators for Deep Learning Mutation Testing.  
+This repository aims to implement mutation operators for Deep Learning Mutation Testing.  
   
-The objective is to provide a tool to generate mutated models for mutation testing on Deep Learning system, where mutated models will be produced by mutation operators. In this repository, 8 source-level mutation operators and 8 model level mutation operators will be implemented.  
+The objective is to provide a tool for mutation testing on Deep Learning system. In this repository, 8 source-level mutation operators and 8 model level mutation operators will be implemented.  
   
-The concept of these mutation operators is introduced in the paper, <b> DeepMutation: Mutation Testing of Deep Learning Systems </b>, where the link is attached in references. However,  coding implementations of each mutation operators are not explicitly explained. In this repository, we clarify the vague part and document how each mutation operators be implemented, aiming to present a convenient tool for mutation testing on Deep Learning system.  
+The concept of these mutation operators is introduced in the paper, <b> DeepMutation: Mutation Testing of Deep Learning Systems </b>, where the link is attached in references. However, coding implementations of each mutation operators are not explicitly explained. In this repository, we clarify the vague part and document how each mutation operators are actually implemented, aiming to present a convenient tool for mutation testing on Deep Learning system.  
 
 
 Source-level mutation operators 
 ------------------
-Source-level mutation operators mutate either the original training dataset or the original training program. A training dataset mutant or training program mutant participates in the training process to generate a mutated model, donated as M'.  
+Source-level mutation operators mutate either the original training dataset or the original training program. A training dataset mutant or training program mutant can further participate in the training process to generate a mutated model for mutation testing.  
   
-For each of the mutation operators, it should be capable to generate several mutated models based on the same original training dataset and training program. Therefore, randomness should be involved in each of the mutation operators. See the description of individual operators Implementation for more details.   
+For each of the mutation operators, it should be capable to generate several mutated models based on the same original training dataset and training program. Therefore, there are several user-configurable parameters can be specified while execution of mutation operators. See the description of individual operators Implementation for more details.   
   
 -  <b> DR - Data Repetition:</b>  
    Target : Training dataset  
@@ -335,6 +335,20 @@ Model-level mutation operators directly mutate the structure and parameters of D
    
    Remarks that in my implementation, the activation functions of the output layer will not be included in the consideration. For instance, the value after activation function, softmax, of the output layer reflects the level of confidence. It may be better not to eliminate the activation functions of the output layer.
     
+    
+Usage of each files 
+----------------
+Files below are ordered in alphabetical order.  
+-  example_model_level.ipynb
+-  example_source_level.ipynb
+-  model_mut_model_generators.py
+-  model_mut_operators.py
+-  network.py
+-  source_mut_model_generators.py
+-  source_mut_operators.py
+-  utils.py
+
+    
 Background
 ----------------
   (some background information about mutation operators will be added here)
@@ -346,13 +360,6 @@ Configuration
   Tensorflow: 1.11.0  
   Keras: 2.2.4  
   NumPy: 1.15.1  
-
-
-Installation
-------------
-
-    Currently not available
-    
 
 
 References
