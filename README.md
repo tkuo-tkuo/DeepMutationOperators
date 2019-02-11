@@ -91,7 +91,7 @@ For each of the mutation operators, it should be capable to generate several mut
    Brief Operator Description: Add noise to a portion of training dataset  
    Implementation:  
    1. A specific amount of samples is chosen independently and exclusivel based on mutation ratio. See the illustration in DR Implementation step i.  
-   2. Noises are appended on each of the selected datasets. Since raw data in the training dataset are rescaled in the range between 0 and 1, the value of noises follows normal distribution, where standard deviation parameter is a user-configurable parameter with default value 0.1 and mean is 0.    
+   2. Noises are appended on each of the selected datasets. Since raw data in the training dataset and test dataset have bben standardized with 0 mean and unit standard deviation, the value of noises follows normal distribution, where standard deviation parameter is a user-configurable parameter with default value 0.1 and mean is 0.    
       
    Input: training dataset, training model, and mutation ratio    
    Output: mutated training dataset and copied training model  
@@ -169,15 +169,15 @@ For each of the mutation operators, it should be capable to generate several mut
    
 Model-level mutation operators 
 ------------------
-Model-level mutation operators directly mutate the structure and parameters of DNN's structure without training procedure, which is more efficient for mutated model generation. Explicitly, model-level mutation operators automatically analysis structure of given DNN and mutate on a copy of the original DNN, where the generated mutant models are serialized and stored as .h5 file format.  
+Model-level mutation operators directly mutate the structure and parameters of DNN's structure without training procedure, which is more efficient for mutated model generation. Explicitly, model-level mutation operators automatically analysis structure of given DNN, mutate on a copy of the original DNN, and return the mutated copy of the original DNN.  
   
 -  <b>GF - Gaussian Fuzzing:</b>  
    Target: Trained model (Weight)  
    Brief Operator Description: Fuzz a portion of weights in trained model by Gaussian Distribution   
    Implementation:  
    1. For weights of each layer, GF flattens weights of each layer to a one-dimensional list, since GF does not need to recognize the relationship between neurons. A one-dimensional list will be handy for manipulation.  
-	 2.  GF mutation operator chooses elements among the one-dimensional list independently and exclusively based on mutation ratio.  
-	 3. GF mutation operators add noise on selected weight, where the noise follows normal distribution ~N(0, std^2). The standard deviation parameter is user-configurable with default value as 0.01.  
+   2.  GF mutation operator chooses elements among the one-dimensional list independently and exclusively based on mutation ratio.  
+   3. GF mutation operators add noise on selected weight, where the noise follows normal distribution ~N(0, std^2). The standard deviation parameter is user-configurable with default value as 0.01.  
    
    Input: trained model, mutation ratio, and standard deviation   
    Output: mutated trained model   
