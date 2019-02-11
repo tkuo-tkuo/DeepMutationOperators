@@ -8,9 +8,14 @@ class GeneralUtils():
     def __init__(self):
         pass
 
+    ''' function decision 
+    Return True with prob
+    Input: probability within [0, 1]
+    Ouput: True or False 
+    '''
     def decision(self, prob):
-        # Return True with the prob
-        # Note that random.random() returns floating point number in the range [0.0, 1.0)
+        assert prob >= 0, 'Probability should in the range of [0, 1]'
+        assert prob <= 1, 'Probability should in the range of [0, 1]'
         return random.random() < prob
 
     def shuffle(self, a):
@@ -48,8 +53,10 @@ class GeneralUtils():
         for key, value in layer_config.items():
             print(key, value)
 
-    # SMM stands for source-level mutated model 
-    # This func looks quite terrible, should be simplified
+    '''
+    SMM stands for source-level mutated model 
+    This function looks quite terrible and messy, should be simplified
+    '''
     def print_messages_SMO(self, mode, train_datas=None, train_labels=None, mutated_datas=None, mutated_labels=None, model=None, mutated_model=None, mutation_ratio=0):
         if mode == 'DR' or mode == 'DM':
             print('Before ' + mode)
@@ -71,8 +78,10 @@ class GeneralUtils():
             print('')
         else:
             pass
-
-    # MMM stands for model-level mutated model 
+    
+    '''
+    MMM stands for model-level mutated model 
+    '''
     def print_messages_MMM_generators(self, mode, network=None, test_datas=None, test_labels=None, model=None, mutated_model=None, STD=0.1, mutation_ratio=0):
         if mode == 'GF':
             print('Before ' + mode)
@@ -107,17 +116,43 @@ class ModelUtils():
         for index, layer in enumerate(new_model.layers):
             original_layer = original_layers[index]
             original_weights = original_layer.get_weights()
-
             layer.name = layer.name + suffix
             layer.set_weights(original_weights)
-
         new_model.name = new_model.name + suffix
         return new_model
+
+    def get_booleans_of_layers_should_be_mutated(self, num_of_layers, indices):
+        if indices == None:
+            booleans_for_layers = np.full(num_of_layers, True)
+        else:
+            booleans_for_layers = np.full(num_of_layers, False)
+            for index in indices:
+                booleans_for_layers[index] = True
+        return booleans_for_layers 
+
+    def weight_of_layers_compare(self, old_model, new_model):
+        old_layers = [l for l in old_model.layers]
+        new_layers = [l for l in new_model.layers]
+        assert len(old_layers) == len(new_layers)
+        num_of_layers = len(old_layers)
+        booleans_for_layers = np.full(num_of_layers, True)
+        for index in range(num_of_layers):
+            old_layer, new_layer = old_layers[index], new_layers[index]
+            old_layer_weights, new_layer_weights = old_layer.get_weights(), new_layer.get_weights()
+            if len(old_layer_weights) == 0:
+                print(True)
+                continue
+
+            is_equal_connections = np.array_equal(old_layer_weights[0], new_layer_weights[0])
+            is_equal_biases = np.array_equal(old_layer_weights[1], new_layer_weights[1])
+            is_equal = is_equal_connections and is_equal_biases
+            print(is_equal)
 
 class ExaminationalUtils():
 
     def __init__(self):
         pass
+
 
     def mutation_ratio_range_check(self, mutation_ratio):
         assert mutation_ratio >= 0, 'Mutation ratio attribute should in the range [0, 1]'
@@ -127,3 +162,10 @@ class ExaminationalUtils():
     def training_dataset_consistent_length_check(self, lst_a, lst_b):
         assert len(lst_a) == len(lst_b), 'Training datas and labels should have the same length'
         pass
+
+    def mutated_layer_indices_check(self, num_of_layers, indices):
+        if indices is not None:
+            for index in indices:
+                assert index >= 0, 'Index should be positive'
+                assert index < num_of_layers, 'Index should not be out of range, where index should be smaller than ' + str(num_of_layers)
+                pass 
