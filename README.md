@@ -11,7 +11,9 @@ Source-level mutation operators
 ------------------
 Source-level mutation operators mutate either the original training dataset or the original training program. A training dataset mutant or training program mutant can further participate in the training process to generate a mutated model for mutation testing.  
   
-For each of the mutation operators, it should be capable to generate several mutated models based on the same original training dataset and training program. Therefore, there are several user-configurable parameters can be specified while execution of mutation operators. See the description of individual operators Implementation for more details.   
+For each of the mutation operators, it should be capable to generate several mutated models based on the same original training dataset and training program. Therefore, there are several user-configurable parameters can be specified while execution of mutation operators. See the description of individual operators Implementation for more details.  
+
+Notices that this API assumes that all the results (labels) in the dataset are one-hot encoded.  
   
 -  <b> DR - Data Repetition:</b>  
    Target : Training dataset  
