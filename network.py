@@ -16,6 +16,21 @@ class FCNetwork():
         test_labels = test_labels[:self.number_of_test_data]
         train_datas = train_datas[:self.number_of_train_data].reshape(-1, self.resize_width * self.resize_height) / 255.0
         test_datas = test_datas[:self.number_of_test_data].reshape(-1, self.resize_width * self.resize_height) / 255.0
+        
+        # Standardize training samples  
+        mean_px = train_datas.mean().astype(np.float32)
+        std_px = train_datas.std().astype(np.float32)
+        train_datas = (train_datas - mean_px) / std_px
+
+        # Standardize test samples  
+        mean_px = test_datas.mean().astype(np.float32)
+        std_px = test_datas.std().astype(np.float32)
+        test_datas = (test_datas - mean_px) / std_px
+
+        # One-hot encoding the labels 
+        train_labels = keras.utils.np_utils.to_categorical(train_labels)
+        test_labels = keras.utils.np_utils.to_categorical(test_labels)
+
         return (train_datas, train_labels), (test_datas, test_labels)
 
     def load_model(self, name_of_file):
@@ -24,30 +39,30 @@ class FCNetwork():
 
     def create_simple_FC_model(self):
         model = keras.models.Sequential([
-            keras.layers.Dense(64, activation=tf.nn.relu,
+            keras.layers.Dense(64, activation='relu',
                                   input_shape=(self.resize_width * self.resize_height, )),
             keras.layers.Dropout(0.2),
-            keras.layers.Dense(10, activation=tf.nn.softmax)
+            keras.layers.Dense(10, activation='softmax')
         ])
 
         return model
 
     def create_normal_FC_model(self):
         model = keras.models.Sequential([
-            keras.layers.Dense(64, activation=tf.nn.relu,
+            keras.layers.Dense(64, activation='relu',
                                   input_shape=(self.resize_width * self.resize_height, )),
             keras.layers.Dropout(0.2),
-            keras.layers.Dense(16, activation=tf.nn.relu),
-            keras.layers.Dense(16, activation=tf.nn.relu),
-            keras.layers.Dense(16, activation=tf.nn.relu),
-            keras.layers.Dense(10, activation=tf.nn.softmax)
+            keras.layers.Dense(16, activation='relu'),
+            keras.layers.Dense(16, activation='relu'),
+            keras.layers.Dense(16, activation='relu'),
+            keras.layers.Dense(10, activation='softmax')
         ])
 
         return model
 
     def compile_model(self, model):
         model.compile(optimizer='adam',
-                      loss=keras.losses.sparse_categorical_crossentropy,
+                      loss='categorical_crossentropy',
                       metrics=['accuracy'])
         return model
 
@@ -65,7 +80,7 @@ class FCNetwork():
     def evaluate_model(self, model, test_datas, test_labels, mode='normal'):
         loss, acc = model.evaluate(test_datas, test_labels)
         if mode == 'normal':
-            print('model accurancy: {:5.2f}%'.format(100*acc))
+            print('Normal model accurancy: {:5.2f}%'.format(100*acc))
             print('')
         else:
             print(mode, 'mutation operator executed')
@@ -79,7 +94,7 @@ class FCNetwork():
         if mode == 'normal':
             print('Normal model is successfully trained and saved at', file_name)
         else: 
-            print('Mutated model by ' + mode + ' is successfully trained and saved at', file_name)
+            print('Mutated model by ' + mode + ' is successfully saved at', file_name)
         print('')
 
     def train_and_save_simply_FC_model(self, name_of_file=None, verbose=False, with_checkpoint=False):
@@ -148,12 +163,12 @@ class CNNNetwork():
         train_datas = np.pad(train_datas, ((0,0),(2,2),(2,2),(0,0)), 'constant')
         test_datas = np.pad(test_datas, ((0,0),(2,2),(2,2),(0,0)), 'constant')
 
-        # Standardizate training samples 
+        # Standardize training samples 
         mean_px = train_datas.mean().astype(np.float32)
         std_px = train_datas.std().astype(np.float32)
         train_datas = (train_datas - mean_px) / (std_px) 
 
-        # Standardizate test samples 
+        # Standardize test samples 
         mean_px = train_datas.mean().astype(np.float32)
         std_px = train_datas.std().astype(np.float32)
         test_datas = (test_datas - mean_px) / (std_px) 
@@ -238,7 +253,7 @@ class CNNNetwork():
     def evaluate_model(self, model, test_datas, test_labels, mode='normal'):
         loss, acc = model.evaluate(test_datas, test_labels)
         if mode == 'normal':
-            print('model accurancy: {:5.2f}%'.format(100*acc))
+            print('Normal model accurancy: {:5.2f}%'.format(100*acc))
             print('')
         else:
             print(mode, 'mutation operator executed')
@@ -252,7 +267,7 @@ class CNNNetwork():
         if mode == 'normal':
             print('Normal model is successfully trained and saved at', file_name)
         else: 
-            print('Mutated model by ' + mode + ' is successfully trained and saved at', file_name)
+            print('Mutated model by ' + mode + ' is successfully saved at', file_name)
         print('')
 
     def train_and_save_simply_CNN_model(self, name_of_file=None, verbose=False, with_checkpoint=False, model_index=1):
