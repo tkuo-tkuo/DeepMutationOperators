@@ -12,8 +12,8 @@ class ModelMutatedModelGenerators():
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
         self.utils = utils.GeneralUtils()
         self.model_utils = utils.ModelUtils()
-
-        if model_architecture == 'CNN':
+        self.model_architecture = model_architecture
+        if self.model_architecture == 'CNN':
             self.network = network.CNNNetwork()
         else:
             self.network = network.FCNetwork()
@@ -29,6 +29,7 @@ class ModelMutatedModelGenerators():
         modes = ['GF', 'WS', 'NEB', 'NAI', 'NS', 'LD', 'LAm', 'AFRm']
 
         # model creation
+        # this should variates according to the value of self.model_architecture
         model = self.network.load_model('CNN_model1')
 
         for mode in modes:
