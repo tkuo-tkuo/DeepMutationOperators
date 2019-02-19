@@ -11,7 +11,7 @@ Source-level mutation operators
 ------------------
 Source-level mutation operators mutate either the original training dataset or the original training program. A training dataset mutant or training program mutant can further participate in the training process to generate a mutated model for mutation testing.  
   
-For each of the mutation operators, it should be capable to generate several mutated models based on the same original training dataset and training program. Therefore, there are several user-configurable parameters can be specified while execution of mutation operators. See the description of individual operators Implementation for more details.  
+For each of the mutation operators, it should be capable to generate several mutated models based on the same original training dataset and training program. Therefore, there are several user-configurable parameters can be specified. See the description of individual operators Implementation for more details.  
 
 Notices that this API assumes that all the results (labels) in the dataset are one-hot encoded.  
   
@@ -171,31 +171,36 @@ Notices that this API assumes that all the results (labels) in the dataset are o
    
 Model-level mutation operators 
 ------------------
-Model-level mutation operators directly mutate the structure and parameters of DNN's structure without training procedure, which is more efficient for mutated model generation. Explicitly, model-level mutation operators automatically analysis structure of given DNN, mutate on a copy of the original DNN, and return the mutated copy of the original DNN.  
+Model-level mutation operators directly mutate the structure and weights of DNN without training procedure, which is more efficient for mutated model generation. Model-level mutation operators automatically analysis structure of given DNN, mutate on a copy of the original DNN, and return the mutated copy of the original DNN.  
   
 -  <b>GF - Gaussian Fuzzing:</b>  
    Target: Trained model (Weight)  
-   Brief Operator Description: Fuzz a portion of weights in trained model by Gaussian Distribution   
+   Brief Operator Description: Fuzz a portion of weights in trained model   
    Implementation:  
    1. For weights of each layer, GF flattens weights of each layer to a one-dimensional list, since GF does not need to recognize the relationship between neurons. A one-dimensional list will be handy for manipulation.  
-   2.  GF mutation operator chooses elements among the one-dimensional list independently and exclusively based on mutation ratio.  
-   3. GF mutation operators add noise on selected weight, where the noise follows normal distribution ~N(0, std^2). The standard deviation parameter is user-configurable with default value as 0.01.  
+   2. GF mutation operator chooses elements for further mutation among the one-dimensional list independently and exclusively based on mutation ratio.  
+   3. According to the type of distribution and corresponding user-configurable input parameters, GF mutation operator add noise on selected weights.
    
-   Input: trained model, mutation ratio, and standard deviation   
-   Output: mutated trained model   
    Syntax:  
    ```python
-    mutated_model  = model_mut_opts.GF_mut(model, mutation_ratio, STD=0.1)
+    mutated_model  = model_mut_opts.GF_mut(model, mutation_ratio, prob_distribution='normal', STD=0.1, lower_bound=None, upper_bound=None, lam=None, mutated_layer_indices=None)
    ```
    Example:  
    ```python
-    # Without specification of standard deviation parameter (STD), STD is set to 0.1 as default
+    # Without specification of standard deviation parameter and type of probability distribution, normal distribution is used and STD is set to 0.1 as default
     GF_model = model_mut_opts.GF_mut(model, 0.01)
-    # Usage with specification of STD value as 2
-    GF_model = model_mut_opts.GF_mut(model, 0.01, STD=2)
+    # With specification of probability distribution type as normal distribution and STD value as 2
+    GF_model = model_mut_opts.GF_mut(model, 0.01, prob_distribution='normal', STD=2)
+    # With specification of probability distribution type as uniform distribution and corresponding lower and upper bound
+    GF_model = model_mut_opts.GF_mut(model, 0.01, prob_distribution='uniform', lower_bound=-1, upper_bound=1)
+    
+    # Users can also indicate the indices of layers to be mutated
+    GF_model = model_mut_opts.GF_mut(model, 0.01, prob_distribution='normal', STD=2, mutated_layer_indices=[0, 1])
    ```
    
-   Remarks that GF mutation operator works well with Dense, Activation, batch normalization. However, it's not guaranteed for convolutional layer yet. It's still under development.  
+   Remarks:  
+   1. GF mutation operator extracts and mutates weights of Dense and Conv2D layer. For other types of layers like Activation, BatchNormalization, and Maxpooling, GF mutation operator will simply ignore these layers.  
+   2. If needed, more type of probability distribution will be added. For instance, double-sided exponential distribution.  
    
 -  <b>WS - Weight Shuffling:</b>  
    Target: Trained model (Neuron)  
