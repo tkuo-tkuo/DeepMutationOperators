@@ -298,63 +298,69 @@ Model-level mutation operators directly mutate the structure and weights of DNN 
    
 -  <b>LD - Layer Deactivation:</b>  
    Target: Trained model (Layer)  
-   Brief Operator Description: Deactivate the effects of a randomly selected layer which satisfies conditions    
+   Brief Operator Description: Deactivate the effects of selected layers which satisfies conditions    
    Implementation:  
-   1. LD operator traverses through the entire structure of deep learning model and record all the layers which are suitable.  Note that simply removing a layer from a trained deep learning model can break the model structure. LD is restricted to mutate layers whose input and output shapes are consistent.  
-   2. One of the selected layers is randomly removed from the deep learning model.  
-           
-   Input: trained model  
-   Output: mutated trained model   
+   1. LD operator traverses through the entire structure of deep learning model and record all the suitable layers for LD mutation. Note that simply removing a layer from a trained deep learning model can break the model structure. LD is restricted to mutate layers whose input and output shapes are consistent.  
+   2. If users do not indicate the indices of layers to be mutated, one of the suitable layers will be randomly selected and removed from the deep learning model.  
+             
    Syntax:  
    ```python
-   mutated_model  = model_mut_opts.LD_mut(model)
+   mutated_model  = model_mut_opts.LD_mut(model, mutated_layer_indices=None)
    ```
    Example:  
    ```python
    LD_model = model_mut_opts.LD_mut(model)
+   
+   # Users can also indicate the indices of layers to be mutated
+   LD_model = model_mut_opts.LD_mut(model, mutated_layer_indices=[0, 1])
    ```
    
-   Remarks that the input and output layer should not be removed since the removal of input and output mutate the model to which totally different from the original one.  
+   Remarks:
+   1. The input and output layer should not be removed since the removal of input and output mutate the model to which totally different from the original one.  
+   2. If the indices of layers indicated by users are invalid, LD will raise an error to notify the users. 
    
 -  <b>LAm - Layer Addition (model-level):</b>  
    Target: Trained model (Layer)  
-   Brief Operator Description: Randomly Add (copy) a layer of previous layer to one of suitable spots in deep learning model      
+   Brief Operator Description: Add (copy) layers to suitable spots in deep learning model      
    Implementation:  
-   1. LAm operator traverses through the entire structure of deep learning model and record all the spots where a layer can be added. The condition is that the shape of input and output should be consistent to avoid breaking the original DNNs.  
-   2. A layer is randomly added in one of the suitable spots.  
-   
-   Input: trained model  
-   Output: mutated trained model   
+   1. LAm operator traverses through the entire structure of deep learning model and record all the suitable spots. There is a restricted condition that the shape of input and output should be consistent to avoid breaking the structure of original DNNs.  
+   2. If users do not indicate the indices of layers to be added, a layer is randomly added in one of the suitable spots.     
    Syntax:  
    ```python
-   mutated_model  = model_mut_opts.LAm_mut(model)
+   mutated_model  = model_mut_opts.LAm_mut(model, mutated_layer_indices=None)
    ```
    Example:  
    ```python
    LAm_model = model_mut_opts.LAm_mut(model)
+   
+   # Users can also indicate the indices of layers to be mutated
+   LAm_model = model_mut_opts.LAm_mut(model, mutated_layer_indices=[0, 1])
    ```
    
-    Remarks LAm is quite similar to LAs operator, both of them add a layer within the deep learning constriction where the input and output must be the same. The only difference is that the weights of the newly added layer in LAm need to be copied from the previous layer.  
+    Remarks:
+    1. The weights of the newly added layer in LAm are copied from the previous layer.  
    
 -  <b>AFRm - Activation Function Removal (model-level):</b>  
    Target: Trained model (Layer)  
-   Brief Operator Description: Remove activation functions of a randomly selected layer    
+   Brief Operator Description: Remove activation functions of selected layers    
    Implementation:  
    1. AFRm operator traverses through the entire structure of deep learning model and record all the layers with activation functions except the output layer.  
-   2. AFRm randomly remove all activation functions of a randomly selected layer.  
-      
-   Input: trained model  
-   Output: mutated trained model   
+   2. If users do not indicate the indices of layers to be added, AFRm randomly remove all activation functions of a layer from selected layers.  
+       
    Syntax:  
    ```python
-   mutated_model  = model_mut_opts.AFRm_mut(model)
+   mutated_model  = model_mut_opts.AFRm_mut(model, mutated_layer_indices=None)
    ```
    Example:  
    ```python
    AFRm_model = model_mut_opts.AFRm_mut(model)
+   
+   # Users can also indicate the indices of layers to be mutated
+   AFRm_model = model_mut_opts.AFRm_mut(model, mutated_layer_indices=[0, 1])
    ```
    
-   Remarks that in my implementation, the activation functions of the output layer will not be included in the consideration. For instance, the value after activation function, softmax, of the output layer reflects the level of confidence. It may be better not to eliminate the activation functions of the output layer.
+   Remarks:
+   1. In my implementation, the activation functions of the output layer will not be included in the consideration. For instance, the value after activation function, softmax, of the output layer reflects the level of confidence. It may be better not to eliminate the activation functions of the output layer.  
     
     
 Usage of each files 
