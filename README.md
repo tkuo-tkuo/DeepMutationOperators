@@ -361,9 +361,20 @@ Model-level mutation operators directly mutate the structure and weights of DNN 
    
    Remarks:
    1. In my implementation, the activation functions of the output layer will not be included in the consideration. For instance, the value after activation function, softmax, of the output layer reflects the level of confidence. It may be better not to eliminate the activation functions of the output layer.  
-    
-    
-Usage of each files 
+
+
+Assumption & Suggestion of Usage
+----------------
+Assumption
+- Results (labels) of dataset are assumed to be one-hot encoded.  
+- Currently, this DeepMutation API is mainly designed for fully-connected neural netowrks and convolutional neural networks. Models inputed are assumed to be either fully-connect neural networks or convolutional neural networks.   
+
+
+Suggestion
+- While constructing the architecture of deep neural networks, users should indicate the input shape for each layer if possible.   
+
+ 
+Purpose & Content of each file  
 ----------------
 Files below are ordered in alphabetical order.  
 -  example_model_level.ipynb
@@ -376,7 +387,7 @@ Files below are ordered in alphabetical order.
 -  utils.py
 
     
-Background
+Background information
 ----------------
   (some background information about mutation operators will be added here)
   
