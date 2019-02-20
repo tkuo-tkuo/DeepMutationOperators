@@ -224,67 +224,77 @@ Model-level mutation operators directly mutate the structure and weights of DNN 
    Remarks:
    1. Biases are excluded from consideration.  
    2. WS mutation operator extracts and mutates weights of Dense and Conv2D layer. For other types of layers like Activation, BatchNormalization, and Maxpooling, GF mutation operator will simply ignore these layers.  
-   3. For Conv2D layer, since all neurons share the weights of filters during convolution, WS mutation operator shuffles the weights in selected filters instead of selected neurons. 
+   3. For Conv2D layer, since all neurons share the weights of filters during convolution, WS mutation operator shuffles the weights in selected output channels (filters) instead of selected neurons. 
      
 -  <b>NEB - Neuron Effect Block:</b>  
    Target: Trained model (Neuron)  
-   Brief Operator Description: Block effect of selected neurons on following layers    
+   Brief Operator Description: Block effect of selected neurons on the next layer    
    Implementation:  
    1. Except for the output layer, for each layer, select neurons independently and exclusively based on the mutation ratio.  
-   2. Block the effect of selected neurons by setting all the weights connecting to next layer as 0.  
+   2. Block the effect of selected neurons by setting all the weights as 0.  
    
-   Input: trained model and mutation ratio  
-   Output: mutated trained model   
    Syntax:  
    ```python
-   mutated_model  = model_mut_opts.NEB_mut(model, mutation_ratio)
+   mutated_model  = model_mut_opts.NEB_mut(model, mutation_ratio, mutated_layer_indices=None)
    ```
    Example:  
    ```python
    NEB_model = model_mut_opts.NEB_mut(model, 0.01)
+   
+   # Users can also indicate the indices of layers to be mutated
+   NEB_model = model_mut_opts.NEB_mut(model, 0.01, mutated_layer_indices=[0, 1])
    ```
    
-   Remarks that biases are excluded for consideration.
+   Remarks:
+   1. Biases are excluded for consideration.
+   2. NEB mutation operator extracts and mutates weights of Dense and Conv2D layer. For other types of layers like Activation, BatchNormalization, and Maxpooling, NEB mutation operator will simply ignore these layers.  
+   3. For Conv2D layer, since all neurons share the weights of filters during convolution, NEB mutation operator blocks effect in terms of selected input channels instead of selected neurons.
    
 -  <b>NAI - Neuron Activation Inverse:</b>  
    Target: Trained model (Neuron)  
    Brief Operator Description: Invert (the sign) of activation status of selected neurons    
    Implementation:  
    1. Except for the input layer, for each layer, select neurons independently and exclusively based on the mutation ratio.  
-   2. According to the paper, DeepMutation: Mutation Testing of Deep Learning Systems, invertion of the activation status of a neuron can be achieved by changing the sign of a neuron's value before applying its activation function. This can be actually achieved by multiplying -1 to all the weights connecting on the previous layer of selected neurons since the output value of a neuron before applying its activation function is the sum of product connecting to a neuron.  
-    
-   Input: trained model and mutation ratio  
-   Output: mutated trained model   
+   2. According to the paper, DeepMutation: Mutation Testing of Deep Learning Systems, invertion of the activation status of a neuron can be achieved by changing the sign of a neuron's value before applying its activation function. This can be actually achieved by multiplying -1 to all the weights connecting on the previous layer of selected neurons.
+      
    Syntax:  
    ```python
-   mutated_model  = model_mut_opts.NAI_mut(model, mutation_ratio)
+   mutated_model  = model_mut_opts.NAI_mut(model, mutation_ratio, mutated_layer_indices=None)
    ```
    Example:  
    ```python
    NAI_model = model_mut_opts.NAI_mut(model, 0.01)
+   
+   # Users can also indicate the indices of layers to be mutated
+   NAI_model = model_mut_opts.NAI_mut(model, 0.01, mutated_layer_indices=[0, 1])
    ```
    
-   Remarks that NAI mutation operator for convolutional layer is still under development.  
+   Remarks:
+   1. NAI mutation operator extracts and mutates weights of Dense and Conv2D layer. For other types of layers like Activation, BatchNormalization, and Maxpooling, NAI mutation operator will simply ignore these layers.
+   2. For Conv2D layer, since all neurons share the weights of filters during convolution, NAI mutation operator mutates the weights of selected output channels (filters) instead of selected neurons.
    
 -  <b>NS - Neuron Switch:</b>  
    Target: Trained model (Neuron)  
    Brief Operator Description: Switch two neurons (shuffle neurons) of the same layer  
    Implementation:  
    1. Select neurons independently and exclusively based on the mutation ratio for each layer.  
-   2. Switch (shuffle) selected neurons. If weights are stored in a matrix, NS switch rows without altering the order of elements within each row.  
-       
-   Input: trained model and mutation ratio  
-   Output: mutated trained model   
+   2. Switch (shuffle) selected neurons, exchange their roles and influences on the next layer. 
+          
    Syntax:  
    ```python
-   mutated_model  = model_mut_opts.NS_mut(model, mutation_ratio)
+   mutated_model  = model_mut_opts.NS_mut(model, mutation_ratio, mutated_layer_indices=None)
    ```
    Example:  
    ```python
    NS_model = model_mut_opts.NS_mut(model, 0.01)
+   
+   # Users can also indicate the indices of layers to be mutated
+   NS_model = model_mut_opts.NS_mut(model, 0.01, mutated_layer_indices=[0, 1])
    ```
    
-   Remarks that since NS mutation operator should generate various mutant based on different mutation ratio given. If you switch neurons multiple times, it's the same effect of shuffle a portion of neurons.
+   Remarks:
+   1. NS mutation operator extracts and mutates weights of Dense and Conv2D layer. For other types of layers like Activation, BatchNormalization, and Maxpooling, NS mutation operator will simply ignore these layers.
+   2. For Conv2D layer, since all neurons share the weights of filters during convolution, NS mutation operator mutates the weights of selected input channels instead of selected neurons
    
 -  <b>LD - Layer Deactivation:</b>  
    Target: Trained model (Layer)  
