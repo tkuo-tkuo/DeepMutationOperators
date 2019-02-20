@@ -204,23 +204,27 @@ Model-level mutation operators directly mutate the structure and weights of DNN 
    
 -  <b>WS - Weight Shuffling:</b>  
    Target: Trained model (Neuron)  
-   Brief Operator Description: Shuffle weights to which selected neurons connect to previous layer   
+   Brief Operator Description: Shuffle weights of selected neurons. which connect to previous layer   
    Implementation:  
    1.  Except for the input layer, for each layer, select neurons independently and exclusively based on the mutation ratio 
    2.  Shuffle the weights of each neuron's connections to the previous layer. For instance, the weights of Dense layer are stored in a matrix (2-dimension list) m * n. If neuron j is selected, all the weights w[:, j] connecting to neuron j are extracted, shuffled, and injected back in a matrix.  
    
-   Input: trained model and mutation ratio  
-   Output: mutated trained model   
    Syntax:  
    ```python
-   mutated_model  = model_mut_opts.WS_mut(model, mutation_ratio)
+   mutated_model  = model_mut_opts.WS_mut(model, mutation_ratio, mutated_layer_indices=None)
    ```
    Example:  
    ```python
    WS_model = model_mut_opts.WS_mut(model, 0.01)
+   
+   # Users can also indicate the indices of layers to be mutated
+   WS_model = model_mut_opts.WS_mut(model, 0.01, mutated_layer_indices=[0, 1])
    ```
    
-   Remarks that biases are excluded for consideration and WS mutation operator for convolutional layer is still under development.  
+   Remarks:
+   1. Biases are excluded from consideration.  
+   2. WS mutation operator extracts and mutates weights of Dense and Conv2D layer. For other types of layers like Activation, BatchNormalization, and Maxpooling, GF mutation operator will simply ignore these layers.  
+   3. For Conv2D layer, since all neurons share the weights of filters during convolution, WS mutation operator shuffles the weights in selected filters instead of selected neurons. 
      
 -  <b>NEB - Neuron Effect Block:</b>  
    Target: Trained model (Neuron)  
