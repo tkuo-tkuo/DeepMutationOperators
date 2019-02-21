@@ -4,7 +4,7 @@ This repository aims to implement mutation operators for Deep Learning Mutation 
   
 The objective is to provide a tool for mutation testing on Deep Learning system. In this repository, 8 source-level mutation operators and 8 model level mutation operators will be implemented.  
   
-The concept of these mutation operators is introduced in the paper, <b> DeepMutation: Mutation Testing of Deep Learning Systems </b>, where the link is attached in references. However, coding implementations of each mutation operators are not explicitly explained. In this repository, we clarify the vague part and document how each mutation operators are actually implemented, aiming to present a convenient tool for mutation testing on Deep Learning system.  
+The concept of these mutation operators is introduced in the paper, <b> DeepMutation: Mutation Testing of Deep Learning Systems </b>, where the link is attached in references. However, the coding implementation of each mutation operator is not explicitly explained. In this repository, we clarify the vague part and document how each mutation operator is actually implemented, aiming to present a convenient tool for mutation testing on Deep Learning system.  
 
 
 Source-level mutation operators 
@@ -358,15 +358,32 @@ Purpose & Content of each file
 ----------------
 Files below are ordered in alphabetical order.  
 -  <b>example_model_level.ipynb</b>  
-   This file illustrates usage of source-level mutation operators, where usage of each mutation operator is separated into blocks for better demonstration.   
+   This file illustrates the usage of source-level mutation operators, where usage of each mutation operator is separated into blocks for a better demonstration.   
+   
 -  <b>example_source_level.ipynb</b>  
-   This file illustrates usage of model-level mutation operators, where usage of each mutation operator is separated into blocks for better demonstration.  
--  model_mut_model_generators.py
--  model_mut_operators.py
--  network.py
--  source_mut_model_generators.py
--  source_mut_operators.py
--  utils.py
+   This file illustrates the usage of model-level mutation operators, where usage of each mutation operator is separated into blocks for a better demonstration.  
+   
+-  <b>model_mut_model_generators.py</b>  
+   This file provides an interface for generating mutated models by model-level mutation operators. It is implemented for my own convenience to facilitate debugging and experiments. Users can solely use mutation operators without the usage of this file.  
+   
+-  <b>model_mut_operators.py</b>  
+   This file consists of two classes, ModelMutationOperators and ModelMutationOperatorsUtils. ModelMutationOperators represents the logic of mutation for each model-level mutation operator, whereas ModelMutationOperatorsUtils extracts all tedious manipulation out from ModelMutationOperators to keep the code readable and maintainable. The class ModelMutationOperators is the interface for users to directly mutate their trained models.  
+   
+-  <b>network.py</b>  
+   This file encapsulates functionalities related to neural network training into two classes, FCNetwork and CNNNetwork.  For instance, dataset processing, model compilation, training process, and model evaluation. Two fully-connected neural networks and two convolutional neural networks are provided respectively in class FCNetwork and class CNNNetwork. However, this file is implemented for facilitating debugging and experiments for my own convenience. Users can use their own neural network architectures, hyperparameters configuration, and datasets.  
+   
+-  <b>source_mut_model_generators.py</b>  
+   This file provides an interface for generating mutated models by source-level mutation operators. It is implemented for my own convenience to facilitate debugging and experiments. Users can solely use mutation operators and train with either mutated dataset or mutated model by themselves without the usage of this file to generate mutated models.  
+   
+-  <b>source_mut_operators.py</b>  
+   This file consists of two classes, SourceMutationOperators and SourceMutationOperatorsUtils. SourceMutationOperators represents the logic of mutation for each source-level mutation operator, whereas SourceMutationOperatorsUtils extracts all tedious manipulation out from SourceMutationOperators to keep the code readable and maintainable. The class SourceMutationOperators is the interface for users to mutate either their untrained models or datasets.  
+
+-  <b>utils.py</b>  
+   This file currently consists of three classes,  GeneralUtils, ModelUtils, and ExaminationalUtils.  
+   
+   1. GeneralUtils contains functions which are used repeatedly in other files. For instance, various shuffle functions.  
+   2. ModelUtils contains functions related to neural network architectures and configurations which are used frequently for both source-level and model-level mutation operators. For instance, the model copy function, since TensorFlow does not actually support deep copy for model instance.  
+   3. ExaminationalUtils contains functions which prevent invalid or problematic inputs. For instance, invalid mutation ratio which is out of the range between 0 and 1.  
 
     
 Background information
