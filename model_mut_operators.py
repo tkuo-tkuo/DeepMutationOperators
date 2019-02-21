@@ -13,26 +13,29 @@ class ModelMutationOperatorsUtils():
         self.LD_mut_candidates = ['Dense']
         self.LAm_mut_candidates = ['Dense']
 
-    def GF_on_list(self, lst, mutation_ratio, STD):
+    def GF_on_list(self, lst, mutation_ratio, prob_distribution, STD, lower_bound, upper_bound, lam):
         copy_lst = lst.copy()
         number_of_data = len(copy_lst)
-        number_of_GF_weights = math.floor(number_of_data * mutation_ratio)
-        permutation =  np.random.permutation(number_of_data)
-        permutation = permutation[:number_of_GF_weights]
+        permutation = self.utils.generate_permutation(number_of_data, mutation_ratio)
 
-        for val in permutation:
-            copy_lst[val] += (np.random.normal() * STD)
+        if prob_distribution == 'normal':
+            copy_lst[permutation] += np.random.normal(scale=STD, size=len(permutation))
+        elif prob_distribution == 'uniform':
+            copy_lst[permutation] += np.random.uniform(low=lower_bound, high=upper_bound, size=len(permutation))
+        elif prob_distribution == 'exponential':
+            assert lam is not 0
+            scale = 1 / lam 
+            copy_lst[permutation] += np.random.exponential(scale=sclae, size=len(permutation))
+        else:
+            pass
 
         return copy_lst
 
     def WS_on_Dense_list(self, lst, output_index):
         copy_lst = lst.copy()
-        input_dim, output_dim = copy_lst.shape
-
         grabbed_lst = copy_lst[:, output_index]
         shuffle_grabbed_lst = self.utils.shuffle(grabbed_lst)
         copy_lst[:, output_index] = shuffle_grabbed_lst
-
         return copy_lst
 
     def WS_on_Conv2D_list(self, lst, output_channel_index):
@@ -44,46 +47,31 @@ class ModelMutationOperatorsUtils():
         shuffle_grabbed_lst = self.utils.shuffle(grabbled_lst)
         copy_lst[:, output_channel_index] = shuffle_grabbed_lst
         copy_lst = np.reshape(copy_lst, (filter_width, filter_height, num_of_input_channels, num_of_output_channels))
-
         return copy_lst
 
-    def NAI_on_list(self, lst, output_index):
-        lst = lst.copy()
-        input_dim, output_dim = lst.shape
+    def NS_on_Dense_list(self, lst, mutation_ratio):
+        first_copy_lst = lst.copy()
+        second_copy_lst = lst.copy()
+        input_dim, output_dim = first_copy_lst.shape
 
-        for index in range(input_dim):
-            lst[index][output_index] *= -1
-
-        return lst
-
-    def NS_copy_lst_column(self, a, b, a_index, b_index):
-        b = b.copy()
-        assert a.shape == b.shape
-        input_dim, output_dim = a.shape
-        for col_index in range(input_dim):
-            b[col_index][b_index] = a[col_index][a_index]
-
-        return b
-
-    def NS_on_list(self, lst, mutation_ratio):
-        lst = lst.copy()
-        copy_lst = lst.copy()
-        shuffled_neurons = np.empty(lst.shape, dtype=lst.dtype)
-
-        # calculate the amount of neurons need to be shuffled 
-        input_dim, output_dim = lst.shape
-        number_of_switch_neurons = math.floor(output_dim * mutation_ratio)
-
-        # produce permutation for shuffling 
-        permutation = np.random.permutation(output_dim)
-        permutation = permutation[:number_of_switch_neurons]
+        permutation = self.utils.generate_permutation(input_dim, mutation_ratio)
         shuffled_permutation = self.utils.shuffle(permutation)
 
-        # shuffle neurons 
         for index in range(len(permutation)):
-            copy_lst = self.NS_copy_lst_column(lst, copy_lst, permutation[index], shuffled_permutation[index])
+            second_copy_lst[shuffled_permutation[index], :] = first_copy_lst[permutation[index], :]
+        return second_copy_lst 
 
-        return copy_lst 
+    def NS_on_Conv2D_list(self, lst, mutation_ratio):
+        first_copy_lst = lst.copy()
+        second_copy_lst = lst.copy()
+        filter_width, filter_height, num_of_input_channels, num_of_output_channels = first_copy_lst.shape
+
+        permutation = self.utils.generate_permutation(num_of_input_channels, mutation_ratio)
+        shuffled_permutation = self.utils.shuffle(permutation)
+
+        for index in range(len(permutation)):
+            second_copy_lst[:, :, shuffled_permutation[index], :] = first_copy_lst[:, :, permutation[index], :]
+        return second_copy_lst
 
     def LD_model_scan(self, model):
         index_of_suitable_layers = []
@@ -93,13 +81,10 @@ class ModelMutationOperatorsUtils():
             is_in_candidates = layer_name in self.LD_mut_candidates
             has_same_input_output_shape = layer.input.shape.as_list() == layer.output.shape.as_list()
             should_be_removed = is_in_candidates and has_same_input_output_shape
-
             if index == 0 or index == (len(model.layers) - 1):
                 continue
-
             if should_be_removed:
                 index_of_suitable_layers.append(index)
-
         return index_of_suitable_layers
 
     def LAm_model_scan(self, model):
@@ -121,13 +106,11 @@ class ModelMutationOperatorsUtils():
         for index, layer in enumerate(layers):
             if index == (len(model.layers) - 1):
                 continue
-
             try:
                 if layer.activation is not None:
                     index_of_suitable_spots.append(index)
             except:
                 pass
-
         return index_of_suitable_spots
 
 
@@ -135,21 +118,27 @@ class ModelMutationOperatorsUtils():
 class ModelMutationOperators():
     
     def __init__(self):
-        self.check = utils.ExaminationalUtils()
+        self.utils = utils.GeneralUtils()
         self.model_utils = utils.ModelUtils()
+        self.check = utils.ExaminationalUtils()
         self.MMO_utils = ModelMutationOperatorsUtils()
 
-
-    def GF_mut(self, model, mutation_ratio, STD=0.1, mutated_layer_indices=None):
+    def GF_mut(self, model, mutation_ratio, prob_distribution='normal', STD=0.1, lower_bound=None, upper_bound=None, lam=None, mutated_layer_indices=None):
         self.check.mutation_ratio_range_check(mutation_ratio)  
+        
+        valid_prob_distribution_types = ['normal', 'uniform']
+        assert prob_distribution in valid_prob_distribution_types, 'The probability distribution type ' + prob_distribution + ' is not implemented in GF mutation operator'
+        if prob_distribution == 'uniform' and ((lower_bound is None) or (upper_bound is None)):
+            raise ValueError('In uniform distribution, users are required to specify the lower bound and upper bound of noises')
+        if prob_distribution == 'exponential' and (lam is None):
+            raise ValueError('In exponential distribution, users are required to specify the lambda value')
 
         GF_model = self.model_utils.model_copy(model, 'GF')
         layers = [l for l in GF_model.layers]
 
         num_of_layers = len(layers)
-        self.check.mutated_layer_indices_check(num_of_layers, mutated_layer_indices)
+        self.check.valid_indices_of_mutated_layers_check(num_of_layers, mutated_layer_indices)
         layers_should_be_mutated = self.model_utils.get_booleans_of_layers_should_be_mutated(num_of_layers, mutated_layer_indices)
-        print(layers_should_be_mutated)
 
         for index, layer in enumerate(layers):
             weights = layer.get_weights()
@@ -158,7 +147,7 @@ class ModelMutationOperators():
                 for val in weights:
                     val_shape = val.shape
                     flat_val = val.flatten()
-                    GF_flat_val = self.MMO_utils.GF_on_list(flat_val, mutation_ratio, STD)
+                    GF_flat_val = self.MMO_utils.GF_on_list(flat_val, mutation_ratio, prob_distribution, STD, lower_bound, upper_bound, lam)
                     GF_val = GF_flat_val.reshape(val_shape)
                     new_weights.append(GF_val)
                 layer.set_weights(new_weights) 
@@ -172,9 +161,8 @@ class ModelMutationOperators():
         layers = [l for l in WS_model.layers]
 
         num_of_layers = len(layers)
-        self.check.mutated_layer_indices_check(num_of_layers, mutated_layer_indices)
+        self.check.valid_indices_of_mutated_layers_check(num_of_layers, mutated_layer_indices)
         layers_should_be_mutated = self.model_utils.get_booleans_of_layers_should_be_mutated(num_of_layers, mutated_layer_indices)
-        print(layers_should_be_mutated)
 
         for index, layer in enumerate(layers):
             weights = layer.get_weights()
@@ -186,16 +174,12 @@ class ModelMutationOperators():
                     if (len(val.shape) is not 1) and layers_should_be_mutated[index]:
                         if layer_name == 'Conv2D':
                             filter_width, filter_height, num_of_input_channels, num_of_output_channels = val_shape
-                            number_of_WS_channels = math.floor(num_of_output_channels * mutation_ratio)
-                            permutation = np.random.permutation(num_of_output_channels)
-                            permutation = permutation[:number_of_WS_channels]
+                            permutation = self.utils.generate_permutation(num_of_output_channels, mutation_ratio)
                             for output_channel_index in permutation:
                                 val = self.MMO_utils.WS_on_Conv2D_list(val, output_channel_index)
                         elif layer_name == 'Dense':
                             input_dim, output_dim = val_shape
-                            number_of_WS_neurons = math.floor(output_dim * mutation_ratio)
-                            permutation =  np.random.permutation(output_dim)
-                            permutation = permutation[:number_of_WS_neurons]
+                            permutation = self.utils.generate_permutation(output_dim, mutation_ratio)
                             for output_dim_index in permutation:
                                 val = self.MMO_utils.WS_on_Dense_list(val, output_dim_index)
                         else:
@@ -212,9 +196,8 @@ class ModelMutationOperators():
         layers = [l for l in NEB_model.layers]
 
         num_of_layers = len(layers)
-        self.check.mutated_layer_indices_check(num_of_layers, mutated_layer_indices)
+        self.check.valid_indices_of_mutated_layers_check(num_of_layers, mutated_layer_indices)
         layers_should_be_mutated = self.model_utils.get_booleans_of_layers_should_be_mutated(num_of_layers, mutated_layer_indices)
-        print(layers_should_be_mutated)
 
         for index, layer in enumerate(layers):
             weights = layer.get_weights()
@@ -225,18 +208,18 @@ class ModelMutationOperators():
                     val_shape = val.shape
                     if (len(val.shape) is not 1) and layers_should_be_mutated[index]:
                         if layer_name == 'Conv2D':
-                            pass
+                            filter_width, filter_height, num_of_input_channels, num_of_output_channels = val_shape
+                            permutation = self.utils.generate_permutation(num_of_input_channels, mutation_ratio)
+                            for input_channel_index in permutation:
+                                val[:, :, input_channel_index, :] = 0
                         elif layer_name == 'Dense':
                             input_dim, output_dim = val_shape
-                            number_of_NEB_neurons = math.floor(input_dim * mutation_ratio)
-                            permutation = np.random.permutation(input_dim)
-                            permutation = permutation[:number_of_NEB_neurons]
+                            permutation = self.utils.generate_permutation(input_dim, mutation_ratio)
                             for input_index in permutation:
                                 val[input_index] = 0 
                         else:
                             pass
                     new_weights.append(val)
-
                 layer.set_weights(new_weights)
 
         return NEB_model
@@ -248,9 +231,8 @@ class ModelMutationOperators():
         layers = [l for l in NAI_model.layers]
 
         num_of_layers = len(layers)
-        self.check.mutated_layer_indices_check(num_of_layers, mutated_layer_indices)
+        self.check.valid_indices_of_mutated_layers_check(num_of_layers, mutated_layer_indices)
         layers_should_be_mutated = self.model_utils.get_booleans_of_layers_should_be_mutated(num_of_layers, mutated_layer_indices)
-        print(layers_should_be_mutated)
 
         for index, layer in enumerate(layers):
             weights = layer.get_weights()
@@ -261,14 +243,15 @@ class ModelMutationOperators():
                     val_shape = val.shape
                     if (len(val.shape) is not 1) and layers_should_be_mutated[index]:
                         if layer_name == 'Conv2D':
-                            pass 
+                            filter_width, filter_height, num_of_input_channels, num_of_output_channels = val_shape
+                            permutation = self.utils.generate_permutation(num_of_output_channels, mutation_ratio)
+                            for output_channel_index in permutation:
+                                val[:, :, :, output_channel_index] *= -1
                         elif layer_name == 'Dense':
                             input_dim, output_dim = val_shape
-                            number_of_NAI_neurons = math.floor(output_dim * mutation_ratio)
-                            permutation = np.random.permutation(output_dim)
-                            permutation = permutation[:number_of_NAI_neurons]
+                            permutation = self.utils.generate_permutation(output_dim, mutation_ratio)
                             for output_dim_index in permutation:
-                                val = self.MMO_utils.NAI_on_list(val, output_dim_index)
+                                val[:, output_dim_index] *= -1
                         else:
                             pass 
                     new_weights.append(val)
@@ -284,10 +267,8 @@ class ModelMutationOperators():
         layers = [l for l in NS_model.layers]
 
         num_of_layers = len(layers)
-        self.check.mutated_layer_indices_check(num_of_layers, mutated_layer_indices)
+        self.check.valid_indices_of_mutated_layers_check(num_of_layers, mutated_layer_indices)
         layers_should_be_mutated = self.model_utils.get_booleans_of_layers_should_be_mutated(num_of_layers, mutated_layer_indices)
-        print(layers_should_be_mutated)
-
         for index, layer in enumerate(layers):
             weights = layer.get_weights()
             layer_name = type(layer).__name__
@@ -295,11 +276,11 @@ class ModelMutationOperators():
             if not (len(weights) == 0):
                 for val in weights:
                     val_shape = val.shape
-                    if len(val.shape) == 2 and layers_should_be_mutated[index]:
+                    if (len(val.shape) is not 1) and layers_should_be_mutated[index]:
                         if layer_name == 'Conv2D':
-                            pass 
+                            val = self.MMO_utils.NS_on_Conv2D_list(val, mutation_ratio) 
                         elif layer_name == 'Dense':
-                            val = self.MMO_utils.NS_on_list(val, mutation_ratio)
+                            val = self.MMO_utils.NS_on_Dense_list(val, mutation_ratio)
                         else:
                             pass
                     new_weights.append(val)
@@ -316,18 +297,28 @@ class ModelMutationOperators():
         if number_of_suitable_layers == 0:
             print('None of layers be removed')
             print('LD will only remove the layer with the same input and output')
+            print('')
             return LD_model
 
-        random_picked_layer_index = index_of_suitable_layers[random.randint(0, number_of_suitable_layers-1)]
-        print('LD suitable layers', index_of_suitable_layers)
-
-        new_model = keras.models.Sequential()
         layers = [l for l in LD_model.layers]
         new_model = keras.models.Sequential()
-        for index, layer in enumerate(layers):
-            if index == random_picked_layer_index:
-                continue
-            new_model.add(layer)
+
+        if mutated_layer_indices == None:
+            random_picked_layer_index = index_of_suitable_layers[random.randint(0, number_of_suitable_layers-1)]
+            print('Selected layer by LD mutation operator', random_picked_layer_index)
+
+            for index, layer in enumerate(layers):
+                if index == random_picked_layer_index:
+                    continue
+                new_model.add(layer)
+        else:
+            self.check.in_suitable_indices_check(index_of_suitable_layers, mutated_layer_indices)
+            
+            for index, layer in enumerate(layers):
+                if index in mutated_layer_indices:
+                    continue
+                new_model.add(layer)
+
 
         return new_model
 
@@ -342,22 +333,34 @@ class ModelMutationOperators():
             print('No layers be added')
             print('LAm will only add the layer with the same input and output')
             print('There is no suitable spot for the input model')
+            print('')
             return LAm_model
-
-        random_picked_spot_index = index_of_suitable_spots[random.randint(0, number_of_suitable_spots-1)]
-        print('LAm suitable layers', index_of_suitable_layers)
 
         new_model = keras.models.Sequential()
         layers = [l for l in LAm_model.layers]
         copy_layers = [l for l in copied_LAm_model.layers]
-        for index, layer in enumerate(layers):
-            if index == random_picked_spot_index:
+
+        if mutated_layer_indices == None:
+            random_picked_spot_index = index_of_suitable_spots[random.randint(0, number_of_suitable_spots-1)]
+            print('Selected layer by LRm mutation operator', random_picked_spot_index)
+
+            for index, layer in enumerate(layers):
+                if index == random_picked_spot_index:
+                    new_model.add(layer)
+                    copy_layer = copy_layers[index]
+                    new_model.add(copy_layer)
+                    continue
                 new_model.add(layer)
-                # remember to load weights to the newly added layer
-                copy_layer = copy_layers[index]
-                new_model.add(copy_layer)
-                continue
-            new_model.add(layer)
+        else:
+            self.check.in_suitable_indices_check(index_of_suitable_spots, mutated_layer_indices)
+
+            for index, layer in enumerate(layers):
+                if index in mutated_layer_indices:
+                    new_model.add(layer)
+                    copy_layer = copy_layers[index]
+                    new_model.add(copy_layer)
+                    continue
+                new_model.add(layer)
 
         return new_model
 
@@ -370,20 +373,29 @@ class ModelMutationOperators():
         if number_of_suitable_layers == 0:
             print('No activation be removed')
             print('Except the output layer, there is no activation function can be removed')
+            print('')
             return AFRm_model
-
-        random_picked_layer_index = index_of_suitable_layers[random.randint(0, number_of_suitable_layers-1)]
-        print('AFRm suitable layers', index_of_suitable_layers)
 
         new_model = keras.models.Sequential()
         layers = [l for l in AFRm_model.layers]
-        for index, layer in enumerate(layers):
 
-            if index == random_picked_layer_index:
-                layer.activation = lambda x: x
+        if mutated_layer_indices == None:
+            random_picked_layer_index = index_of_suitable_layers[random.randint(0, number_of_suitable_layers-1)]
+            print('Selected layer by AFRm mutation operator', random_picked_layer_index)
+
+            for index, layer in enumerate(layers):
+                if index == random_picked_layer_index:
+                    layer.activation = lambda x: x
+                    new_model.add(layer)
+                    continue
                 new_model.add(layer)
-                continue
-
-            new_model.add(layer)
+        else:
+            self.check.in_suitable_indices_check(index_of_suitable_layers, mutated_layer_indices)
+            for index, layer in enumerate(layers):
+                if index in mutated_layer_indices:
+                    layer.activation = lambda x: x
+                    new_model.add(layer)
+                    continue
+                new_model.add(layer)
 
         return new_model

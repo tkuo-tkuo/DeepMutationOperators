@@ -81,10 +81,10 @@ class SourceMutatedModelGenerators():
             model = self.network.compile_model(model)
             trained_model = self.network.train_model(model, train_datas, train_results, with_checkpoint=with_checkpoint)
 
-            self.utils.print_messages_SMO(mode, train_datas=train_datas, train_results=train_results, mutated_datas=mutated_datas, mutated_results=mutated_results, model=model, mutated_model=mutated_model, mutation_ratio=mutation_ratio)
+            self.utils.print_messages_SMO(mode, train_datas=train_datas, train_results=train_results, mutated_datas=mutated_datas, mutated_results=mutated_results, model=trained_model, mutated_model=trained_mutated_model, mutation_ratio=mutation_ratio)
         
             test_datas, test_results = test_dataset
-            self.network.evaluate_model(model, test_datas, test_results)
-            self.network.evaluate_model(mutated_model, test_datas, test_results, mode)
+            self.network.evaluate_model(trained_model, test_datas, test_results)
+            self.network.evaluate_model(trained_mutated_model, test_datas, test_results, mode)
 
         self.network.save_model(trained_mutated_model, name_of_saved_file, mode)
