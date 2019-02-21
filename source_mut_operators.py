@@ -6,12 +6,9 @@ import random
 import math
 import utils
 
-class SourceMutationOperators():
+class SourceMutationOperatorsUtils():
 
     def __init__(self):
-        self.utils = utils.GeneralUtils()
-        self.check = utils.ExaminationalUtils()
-        self.model_utils = utils.ModelUtils()
         self.LR_mut_candidates = ['Dense', 'BatchNormalization']
         self.LA_mut_candidates = [keras.layers.ReLU(), keras.layers.BatchNormalization()]
 
@@ -20,7 +17,6 @@ class SourceMutationOperators():
         random_index = random.randint(0, num_of_LA_candidates - 1)
         return self.LA_mut_candidates[random_index]
 
-    # it returns how many layers are suitable for LR mutation 
     def LR_model_scan(self, model):
         index_of_suitable_layers = []
         layers = [l for l in model.layers]
@@ -35,10 +31,8 @@ class SourceMutationOperators():
 
             if should_be_removed:
                 index_of_suitable_layers.append(index)
-
         return index_of_suitable_layers
 
-    # it returns how many spots are suitable for LAs mutation 
     def LAs_model_scan(self, model):
         index_of_suitable_spots = []
         layers = [l for l in model.layers]
@@ -47,10 +41,8 @@ class SourceMutationOperators():
                 continue
 
             index_of_suitable_spots.append(index)
-
         return index_of_suitable_spots
 
-    # it returns how many layers are suitable for LR mutation 
     def AFRs_model_scan(self, model):
         index_of_suitable_spots = []
         layers = [l for l in model.layers]
@@ -63,10 +55,15 @@ class SourceMutationOperators():
                     index_of_suitable_spots.append(index)
             except:
                 pass
-            
-
         return index_of_suitable_spots
 
+class SourceMutationOperators():
+
+    def __init__(self):
+        self.utils = utils.GeneralUtils()
+        self.check = utils.ExaminationalUtils()
+        self.model_utils = utils.ModelUtils()
+        self.SMO_utils = SourceMutationOperatorsUtils()
 
     def DR_mut(self, train_dataset, model, mutation_ratio):
         deep_copied_model = self.model_utils.model_copy(model, 'DR')
@@ -95,7 +92,7 @@ class SourceMutationOperators():
         
         number_of_train_data = len(LE_train_datas)
         number_of_error_labels = math.floor(number_of_train_data * mutation_ratio)
-        permutation = np.random.permutation(len(LE_train_datas))
+        permutation = np.random.permutation(number_of_train_data)
         permutation = permutation[:number_of_error_labels]
         for old_index, new_index in enumerate(permutation):
             while True:
@@ -169,7 +166,7 @@ class SourceMutationOperators():
         self.check.training_dataset_consistent_length_check(copied_train_datas, copied_train_labels)
 
         # Randomly select from suitable layers instead of the first one 
-        index_of_suitable_layers = self.LR_model_scan(model)
+        index_of_suitable_layers = self.SMO_utils.LR_model_scan(model)
         number_of_suitable_layers = len(index_of_suitable_layers)
         if number_of_suitable_layers == 0:
             print('None of layers be removed')
@@ -197,7 +194,7 @@ class SourceMutationOperators():
         self.check.training_dataset_consistent_length_check(copied_train_datas, copied_train_labels)
 
         # Randomly select from suitable spots instead of the first one 
-        index_of_suitable_spots = self.LAs_model_scan(model)
+        index_of_suitable_spots = self.SMO_utils.LAs_model_scan(model)
         number_of_suitable_spots = len(index_of_suitable_spots)
         if number_of_suitable_spots == 0:
             print('No layers be added')
@@ -213,7 +210,7 @@ class SourceMutationOperators():
 
             if index == random_picked_spot_index:
                 new_model.add(layer)
-                new_model.add(self.LA_get_random_layer())
+                new_model.add(self.SMO_utils.LA_get_random_layer())
                 continue
 
             new_model.add(layer)
@@ -228,7 +225,7 @@ class SourceMutationOperators():
         self.check.training_dataset_consistent_length_check(copied_train_datas, copied_train_labels)
 
         # Randomly select from suitable layers instead of the first one 
-        index_of_suitable_layers = self.AFRs_model_scan(model)
+        index_of_suitable_layers = self.SMO_utils.AFRs_model_scan(model)
         number_of_suitable_layers = len(index_of_suitable_layers)
         if number_of_suitable_layers == 0:
             print('None activation of layers be removed')
