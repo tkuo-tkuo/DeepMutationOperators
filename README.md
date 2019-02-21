@@ -11,9 +11,7 @@ Source-level mutation operators
 ------------------
 Source-level mutation operators mutate either the original training dataset or the original training program. A training dataset mutant or training program mutant can further participate in the training process to generate a mutated model for mutation testing.  
   
-For each of the mutation operators, it should be capable to generate several mutated models based on the same original training dataset and training program. Therefore, there are several user-configurable parameters can be specified. See the description of individual operators Implementation for more details.  
-
-Notices that this API assumes that all the results (labels) in the dataset are one-hot encoded.  
+For each of the mutation operators, there are several user-configurable parameters can be specified. See the description of individual operators Implementation for more details.  
   
 -  <b> DR - Data Repetition:</b>  
    Target : Training dataset  
@@ -22,8 +20,6 @@ Notices that this API assumes that all the results (labels) in the dataset are o
    1. A specific amount of samples is chosen independently and exclusively based on mutation ratio. For instance, if there are 5000 samples and mutation ratio is set to be 0.01, 50 samples will be selected for duplication, where the samples should like [sample_3827, sample_2, sample_4999, ..., sample 2387] instead of [sample_1, sample_2, ..., sample_50] or [sample_4951, sample_4952, ..., sample_5000].  
    2. Selected samples are concatenated with the original training dataset.  
    
-   Input: training dataset, training model, and mutation ratio    
-   Output: mutated training dataset and copied training model  
    Syntax:  
    ```python
     mutated_dataset, copied_model  = source_mut_opts.DR_mut(training_dataset, model, mutation_ratio)
@@ -39,9 +35,7 @@ Notices that this API assumes that all the results (labels) in the dataset are o
    Implementation:  
    1. A specific amount of samples is chosen independently and exclusively based on mutation ratio. See the illustration in DR Implementation step i.  
    2. Each result (e.g., label) among the chosen samples is mislabeled by LE operator. For instance, if the set of labels is donated as L, {0, 1, ..., 9}, and the correct label is 0, LE operator will randomly assign a value among L except the correct label 0.    
-   
-   Input: training dataset, training model, label lower bound, label upper bound, and mutation ratio    
-   Output: mutated training dataset and copied training model  
+  
    Syntax:  
    ```python
     mutated_dataset, copied_model  = source_mut_opts.LE_mut(training_dataset, model, label_lower_bound, label_upper_bound, mutation_ratio)
@@ -50,7 +44,6 @@ Notices that this API assumes that all the results (labels) in the dataset are o
    ```python
     (LE_train_datas, LE_train_labels), LE_model = source_mut_opts.LE_mut((train_datas, train_labels), model, 0, 9, 0.01)
    ```
-   
     
 -  <b>DM - Data Missing :</b>  
    Target: Training dataset  
@@ -59,8 +52,6 @@ Notices that this API assumes that all the results (labels) in the dataset are o
    1. A specific amount of samples is chosen independently and exclusively for further removal based on mutation ratio. See the illustration in DR Implementation step i.  
    2. Selected samples in the training dataset are removed.  
       
-   Input: training dataset, training model, and mutation ratio    
-   Output: mutated training dataset and copied training model  
    Syntax:  
    ```python
     mutated_dataset, copied_model  = source_mut_opts.DM_mut(training_dataset, model, mutation_ratio)
@@ -77,8 +68,6 @@ Notices that this API assumes that all the results (labels) in the dataset are o
    1. A specific amount of samples is chosen independently and exclusivel based on mutation ratio. See the illustration in DR Implementation step i.  
    2. Only the selected samples will be shuffled and the order of unselected samples is preserved.  
    
-   Input: training dataset, training model, and mutation ratio    
-   Output: mutated training dataset and copied training model  
    Syntax:  
    ```python
     mutated_dataset, copied_model  = source_mut_opts.DF_mut(training_dataset, model, mutation_ratio)
@@ -94,9 +83,7 @@ Notices that this API assumes that all the results (labels) in the dataset are o
    Implementation:  
    1. A specific amount of samples is chosen independently and exclusivel based on mutation ratio. See the illustration in DR Implementation step i.  
    2. Noises are appended on each of the selected datasets. Since raw data in the training dataset and test dataset have bben standardized with 0 mean and unit standard deviation, the value of noises follows normal distribution, where standard deviation parameter is a user-configurable parameter with default value 0.1 and mean is 0.    
-      
-   Input: training dataset, training model, and mutation ratio    
-   Output: mutated training dataset and copied training model  
+       
    Syntax:  
    ```python
     mutated_dataset, copied_model  = source_mut_opts.NP_mut(training_dataset, model, mutation_ratio, STD=0.1)
@@ -116,8 +103,6 @@ Notices that this API assumes that all the results (labels) in the dataset are o
    1. LR operator traverses through the entire structure of deep learning model and record all the layers where conditions are satisfied. The first condition is that the input and output shape of a layer should be the same. The second condition is that, according to the paper, DeepMutation: Mutation Testing of Deep Learning Systems, LR mutation operator mainly focuses on layers (e.g., Dense, BatchNormalization layer), whose deletion doesn't make too much influence on the mutated model, since arbitrary removal of a layer may generate obviously different Deep Learning model from the original one.  
    2. One of the selected layers is randomly removed from the deep learning model.  
    
-   Input: training dataset and training model  
-   Output: copied training dataset and mutated training model  
    Syntax:  
    ```python
     copied_dataset, mutated_model  = source_mut_opts.LR_mut(training_dataset, model)
@@ -136,8 +121,6 @@ Notices that this API assumes that all the results (labels) in the dataset are o
    1. LAs operator traverses through the entire structure of deep learning model and record all the spots where a layer can be added.   
    2. According to the paper, DeepMutation: Mutation Testing of Deep Learning Systems, LAs operator mainly focuses on adding layers like Activation, BatchNormalization. More types of layers should be considered in the future implementation once addition of a layer will not generate obviously different Deep Learning model from the original one, where unqualified mutant can be filtered out.   
   
-   Input: training dataset and training model  
-   Output: copied training dataset and mutated training model  
    Syntax:  
    ```python
     copied_dataset, mutated_model  = source_mut_opts.LAs_mut(training_dataset, model)
@@ -156,8 +139,6 @@ Notices that this API assumes that all the results (labels) in the dataset are o
    1. AFRs operator traverses through the entire structure of deep learning model and record all the layers with activation functions except the output layer.  
    1. AFRs randomly remove all activation functions of a randomly selected layer.  
      
-   Input: training dataset and training model  
-   Output: copied training dataset and mutated training model  
    Syntax:  
    ```python
     copied_dataset, mutated_model  = source_mut_opts.AFRs_mut(training_dataset, model)
@@ -365,20 +346,21 @@ Model-level mutation operators directly mutate the structure and weights of DNN 
 
 Assumption & Suggestion of Usage
 ----------------
-Assumption
+<b>Assumption</b>
 - Results (labels) of dataset are assumed to be one-hot encoded.  
 - Currently, this DeepMutation API is mainly designed for fully-connected neural netowrks and convolutional neural networks. Models inputed are assumed to be either fully-connect neural networks or convolutional neural networks.   
 
-
-Suggestion
+<b>Suggestion</b>
 - While constructing the architecture of deep neural networks, users should indicate the input shape for each layer if possible.   
 
  
 Purpose & Content of each file  
 ----------------
 Files below are ordered in alphabetical order.  
--  example_model_level.ipynb
--  example_source_level.ipynb
+-  <b>example_model_level.ipynb</b>  
+   This file illustrates usage of source-level mutation operators, where usage of each mutation operator is separated into blocks for better demonstration.   
+-  <b>example_source_level.ipynb</b>  
+   This file illustrates usage of model-level mutation operators, where usage of each mutation operator is separated into blocks for better demonstration.  
 -  model_mut_model_generators.py
 -  model_mut_operators.py
 -  network.py
