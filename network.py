@@ -100,6 +100,7 @@ class FCNetwork():
     def train_and_save_simply_FC_model(self, name_of_file=None, verbose=False, with_checkpoint=False):
         (train_datas, train_labels), (test_datas, test_labels) = self.load_data()
         model = self.create_simple_FC_model()
+        model = self.compile_model(model)
         model = self.train_model(model, train_datas, train_labels, name_of_file, with_checkpoint=with_checkpoint)
 
         if verbose:
@@ -119,6 +120,7 @@ class FCNetwork():
     def train_and_save_normal_FC_model(self, name_of_file=None, verbose=False, with_checkpoint=False):
         (train_datas, train_labels), (test_datas, test_labels) = self.load_data()
         model = self.create_normal_FC_model()
+        model = self.compile_model(model)
         model = self.train_model(model, train_datas, train_labels, name_of_file, with_checkpoint=with_checkpoint)
 
         if verbose:
