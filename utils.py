@@ -57,16 +57,16 @@ class GeneralUtils():
     SMM stands for source-level mutated model 
     This function looks quite terrible and messy, should be simplified
     '''
-    def print_messages_SMO(self, mode, train_datas=None, train_results=None, mutated_datas=None, mutated_results=None, model=None, mutated_model=None, mutation_ratio=0):
+    def print_messages_SMO(self, mode, train_datas=None, train_labels=None, mutated_datas=None, mutated_labels=None, model=None, mutated_model=None, mutation_ratio=0):
         if mode in ['DR', 'DM']:
             print('Before ' + mode)
             print('Train data shape:', train_datas.shape)
-            print('Train results shape:', train_results.shape)
+            print('Train labels shape:', train_labels.shape)
             print('')
 
             print('After ' + mode + ', where the mutation ratio is', mutation_ratio)
             print('Train data shape:', mutated_datas.shape)
-            print('Train results shape:', mutated_results.shape)
+            print('Train labels shape:', mutated_labels.shape)
             print('')
         elif mode in ['LE', 'DF', 'NP']:
             pass 
@@ -84,20 +84,20 @@ class GeneralUtils():
     '''
     MMM stands for model-level mutated model 
     '''
-    def print_messages_MMM_generators(self, mode, network=None, test_datas=None, test_results=None, model=None, mutated_model=None, STD=0.1, mutation_ratio=0):
+    def print_messages_MMM_generators(self, mode, network=None, test_datas=None, test_labels=None, model=None, mutated_model=None, STD=0.1, mutation_ratio=0):
         if mode in ['GF', 'WS', 'NEB', 'NAI', 'NS']:
             print('Before ' + mode)
-            network.evaluate_model(model, test_datas, test_results)
+            network.evaluate_model(model, test_datas, test_labels)
             print('After ' + mode + ', where the mutation ratio is', mutation_ratio)
-            network.evaluate_model(mutated_model, test_datas, test_results, mode)
+            network.evaluate_model(mutated_model, test_datas, test_labels, mode)
         elif mode in ['LD', 'LAm', 'AFRm']:
             print('Before ' + mode)
             model.summary()
-            network.evaluate_model(model, test_datas, test_results)
+            network.evaluate_model(model, test_datas, test_labels)
 
             print('After ' + mode)
             mutated_model.summary()
-            network.evaluate_model(mutated_model, test_datas, test_results, mode)
+            network.evaluate_model(mutated_model, test_datas, test_labels, mode)
         else:
             pass
 
@@ -176,7 +176,7 @@ class ExaminationalUtils():
         pass 
 
     def training_dataset_consistent_length_check(self, lst_a, lst_b):
-        assert len(lst_a) == len(lst_b), 'Training datas and results should have the same length'
+        assert len(lst_a) == len(lst_b), 'Training datas and labels should have the same length'
         pass
 
     def valid_indices_of_mutated_layers_check(self, num_of_layers, indices):
