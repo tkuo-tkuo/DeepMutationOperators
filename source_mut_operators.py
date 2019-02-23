@@ -158,7 +158,7 @@ class SourceMutationOperators():
         return (NP_train_datas, NP_train_labels), deep_copied_model
 
     
-    def LR_mut(self, train_dataset, model):
+    def LR_mut(self, train_dataset, model, mutated_layer_indices=None):
         # Copying and some assertions
         deep_copied_model = self.model_utils.model_copy(model, 'LR')
         train_datas, train_labels = train_dataset
@@ -174,19 +174,29 @@ class SourceMutationOperators():
             print('However, there is no suitable layer for the input model')
             return (copied_train_datas, copied_train_labels), deep_copied_model
 
-        random_picked_layer_index = index_of_suitable_layers[random.randint(0, number_of_suitable_layers-1)]
-
-        # Remove randomly select layer 
         new_model = keras.models.Sequential()
         layers = [l for l in deep_copied_model.layers]
-        for index, layer in enumerate(layers):
-            if index == random_picked_layer_index:
-                continue
-            new_model.add(layer)
+
+
+        if mutated_layer_indices == None:
+            random_picked_layer_index = index_of_suitable_layers[random.randint(0, number_of_suitable_layers-1)]
+            print('Selected layer by LR mutation operator', random_picked_layer_index)
+            
+            for index, layer in enumerate(layers):
+                if index == random_picked_layer_index:
+                    continue
+                new_model.add(layer)
+        else:
+            self.check.in_suitable_indices_check(index_of_suitable_layers, mutated_layer_indices)
+
+            for index, layer in enumerate(layers):
+                if index in mutated_layer_indices:
+                    continue
+                new_model.add(layer)
 
         return (copied_train_datas, copied_train_labels), new_model
 
-    def LAs_mut(self, train_dataset, model):
+    def LAs_mut(self, train_dataset, model, mutated_layer_indices=None):
         # Copying and some assertions
         deep_copied_model = self.model_utils.model_copy(model, 'LAs')
         train_datas, train_labels = train_dataset
@@ -201,23 +211,34 @@ class SourceMutationOperators():
             print('There is no suitable spot for the input model')
             return (copied_train_datas, copied_train_labels), deep_copied_model
 
-        random_picked_spot_index = index_of_suitable_spots[random.randint(0, number_of_suitable_spots-1)]
-
-        # Add layer to randomly selected spot 
         new_model = keras.models.Sequential()
         layers = [l for l in deep_copied_model.layers]
-        for index, layer in enumerate(layers):
 
-            if index == random_picked_spot_index:
+        if mutated_layer_indices == None:
+            random_picked_spot_index = index_of_suitable_spots[random.randint(0, number_of_suitable_spots-1)]
+            print('Selected layer by LAs mutation operator', random_picked_spot_index)
+
+            for index, layer in enumerate(layers):
+
+                if index == random_picked_spot_index:
+                    new_model.add(layer)
+                    new_model.add(self.SMO_utils.LA_get_random_layer())
+                    continue
                 new_model.add(layer)
-                new_model.add(self.SMO_utils.LA_get_random_layer())
-                continue
+        else:
+            self.check.in_suitable_indices_check(index_of_suitable_spots, mutated_layer_indices)
 
-            new_model.add(layer)
+            for index, layer in enumerate(layers):
+                if index in mutated_layer_indices:
+                    new_model.add(layer)
+                    new_model.add(self.SMO_utils.LA_get_random_layer())
+                    continue
+                new_model.add(layer)
+
 
         return (copied_train_datas, copied_train_labels), new_model
 
-    def AFRs_mut(self, train_dataset, model):
+    def AFRs_mut(self, train_dataset, model, mutated_layer_indices=None):
         # Copying and some assertions
         deep_copied_model = self.model_utils.model_copy(model, 'AFRs')
         train_datas, train_labels = train_dataset
@@ -231,19 +252,27 @@ class SourceMutationOperators():
             print('None activation of layers be removed')
             print('There is no suitable layer for the input model')
             return (copied_train_datas, copied_train_labels), deep_copied_model
-
-        random_picked_layer_index = index_of_suitable_layers[random.randint(0, number_of_suitable_layers-1)]
         
-        # Deactivation one of layer in randomly selected layers 
         new_model = keras.models.Sequential()
         layers = [l for l in deep_copied_model.layers]
-        for index, layer in enumerate(layers):
 
-            if index == random_picked_layer_index:
-                layer.activation = lambda x: x
+        if mutated_layer_indices == None:
+            random_picked_layer_index = index_of_suitable_layers[random.randint(0, number_of_suitable_layers-1)]
+            print('Seleced layer by AFRs mutation operator', random_picked_layer_index)
+
+            for index, layer in enumerate(layers):
+                if index == random_picked_layer_index:
+                    layer.activation = lambda x: x
+                    new_model.add(layer)
+                    continue
                 new_model.add(layer)
-                continue
-
-            new_model.add(layer)
+        else:
+            self.check.in_suitable_indices_check(index_of_suitable_layers, mutated_layer_indices)
+            for index, layer in enumerate(layers):
+                if index in mutated_layer_indices:
+                    layer.activation = lambda x: x
+                    new_model.add(layer)
+                    continue
+                new_model.add(layer)
 
         return (copied_train_datas, copied_train_labels), new_model
