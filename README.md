@@ -7,149 +7,6 @@ The objective is to provide a tool for mutation testing on Deep Learning system.
 The concept of these mutation operators is introduced in the paper, <b> DeepMutation: Mutation Testing of Deep Learning Systems </b>, where the link is attached in references. However, the coding implementation of each mutation operator is not explicitly explained. In this repository, we clarify the vague part and document how each mutation operator is actually implemented, aiming to present a convenient tool for mutation testing on Deep Learning system.  
 
 
-Source-level mutation operators 
-------------------
-Source-level mutation operators mutate either the original training dataset or the original training program. A training dataset mutant or training program mutant can further participate in the training process to generate a mutated model for mutation testing.  
-  
-For each of the mutation operators, there are several user-configurable parameters can be specified. See the description of individual operators Implementation for more details.  
-  
--  <b> DR - Data Repetition:</b>  
-   Target : Training dataset  
-   Brief Operator Description: DR operator duplicates a portion of training dataset.
-   Implementation:  
-   1. A specific amount of samples is chosen independently and exclusively based on mutation ratio. For instance, if there are 5000 samples and mutation ratio is set to be 0.01, 50 samples will be selected for duplication, where the samples should like [sample_3827, sample_2, sample_4999, ..., sample 2387] instead of [sample_1, sample_2, ..., sample_50] or [sample_4951, sample_4952, ..., sample_5000].  
-   2. Selected samples are concatenated with the original training dataset.  
-   
-   Syntax:  
-   ```python
-    mutated_dataset, copied_model  = source_mut_opts.DR_mut(training_dataset, model, mutation_ratio)
-   ```
-   Example:  
-   ```python
-    (DR_train_datas, DR_train_labels), DR_model = source_mut_opts.DR_mut((train_datas, train_labels), model, 0.01)
-   ```
-   
--  <b>LE - Label Error:</b>  
-   Target: Training dataset  
-   Brief Operator Description: LE operator falsifies a portion of results (e.g., labels) in traning dataset.  
-   Implementation:  
-   1. A specific amount of samples is chosen independently and exclusively based on mutation ratio. See the illustration in DR Implementation step i.  
-   2. Each result (e.g., label) among the chosen samples is mislabeled by LE operator. For instance, if the set of labels is donated as L, {0, 1, ..., 9}, and the correct label is 0, LE operator will randomly assign a value among L except the correct label 0.    
-  
-   Syntax:  
-   ```python
-    mutated_dataset, copied_model  = source_mut_opts.LE_mut(training_dataset, model, label_lower_bound, label_upper_bound, mutation_ratio)
-   ```
-   Example:  
-   ```python
-    (LE_train_datas, LE_train_labels), LE_model = source_mut_opts.LE_mut((train_datas, train_labels), model, 0, 9, 0.01)
-   ```
-    
--  <b>DM - Data Missing :</b>  
-   Target: Training dataset  
-   Brief Operator Description: Remove a portion of training dataset  
-   Implementation:  
-   1. A specific amount of samples is chosen independently and exclusively for further removal based on mutation ratio. See the illustration in DR Implementation step i.  
-   2. Selected samples in the training dataset are removed.  
-      
-   Syntax:  
-   ```python
-    mutated_dataset, copied_model  = source_mut_opts.DM_mut(training_dataset, model, mutation_ratio)
-   ```
-   Example:  
-   ```python
-    (DM_train_datas, DM_train_labels), DM_model = source_mut_opts.DM_mut((train_datas, train_labels), model, 0.01)
-   ```
-   
--  <b>DF - Data Shuffle:</b>   
-   Target: Training dataset  
-   Brief Operator Description: Shuffle selected samples among training dataset  
-   Implementation:  
-   1. A specific amount of samples is chosen independently and exclusivel based on mutation ratio. See the illustration in DR Implementation step i.  
-   2. Only the selected samples will be shuffled and the order of unselected samples is preserved.  
-   
-   Syntax:  
-   ```python
-    mutated_dataset, copied_model  = source_mut_opts.DF_mut(training_dataset, model, mutation_ratio)
-   ```
-   Example:  
-   ```python
-    (DF_train_datas, DF_train_labels), DF_model = source_mut_opts.DF_mut((train_datas, train_labels), model, 0.01)
-   ```
-   
--  <b>NP - Noise Perturb:</b>  
-   Target: Training dataset  
-   Brief Operator Description: Add noise to a portion of training dataset  
-   Implementation:  
-   1. A specific amount of samples is chosen independently and exclusivel based on mutation ratio. See the illustration in DR Implementation step i.  
-   2. Noises are appended on each of the selected datasets. Since raw data in the training dataset and test dataset have bben standardized with 0 mean and unit standard deviation, the value of noises follows normal distribution, where standard deviation parameter is a user-configurable parameter with default value 0.1 and mean is 0.    
-       
-   Syntax:  
-   ```python
-    mutated_dataset, copied_model  = source_mut_opts.NP_mut(training_dataset, model, mutation_ratio, STD=0.1)
-   ```
-   Example:  
-   ```python
-    # Without specification of standard deviation parameter (STD), STD is set to 0.1 as default
-    (NP_train_datas, NP_train_labels), NP_model = source_mut_opts.NP_mut((train_datas, train_labels), model, 0.01)
-    # Usage with specification of STD value as 2
-    (NP_train_datas, NP_train_labels), NP_model = source_mut_opts.NP_mut((train_datas, train_labels), model, 0.01, STD=2)
-   ```
-   
--  <b>LR - Layer Removal:</b>  
-   Target: Training program  
-   Brief Operator Description: Remove a randomly selected layer which satisfies conditions  
-   Implementation:  
-   1. LR operator traverses through the entire structure of deep learning model and record all the layers where conditions are satisfied. The first condition is that the input and output shape of a layer should be the same. The second condition is that, according to the paper, DeepMutation: Mutation Testing of Deep Learning Systems, LR mutation operator mainly focuses on layers (e.g., Dense, BatchNormalization layer), whose deletion doesn't make too much influence on the mutated model, since arbitrary removal of a layer may generate obviously different Deep Learning model from the original one.  
-   2. One of the selected layers is randomly removed from the deep learning model.  
-   
-   Syntax:  
-   ```python
-    copied_dataset, mutated_model  = source_mut_opts.LR_mut(training_dataset, model)
-   ```
-   Example:  
-   ```python
-    (LR_train_datas, LR_train_labels), LR_model = source_mut_opts.LR_mut((train_datas, train_labels), model)
-   ```
-  
-   Remarks that in my implementation, the input layer and output layer will not be included in the consideration.   
-   
--  <b>LAs - Layer Addition for source-level:</b>  
-   Target: Training program  
-   Brief Operator Description: Randomly add a layer to one of suitable spots in the deep learning model  
-   Implementation:  
-   1. LAs operator traverses through the entire structure of deep learning model and record all the spots where a layer can be added.   
-   2. According to the paper, DeepMutation: Mutation Testing of Deep Learning Systems, LAs operator mainly focuses on adding layers like Activation, BatchNormalization. More types of layers should be considered in the future implementation once addition of a layer will not generate obviously different Deep Learning model from the original one, where unqualified mutant can be filtered out.   
-  
-   Syntax:  
-   ```python
-    copied_dataset, mutated_model  = source_mut_opts.LAs_mut(training_dataset, model)
-   ```
-   Example:  
-   ```python
-    (LAs_train_datas, LAs_train_labels), LAs_model = source_mut_opts.LAs_mut((train_datas, train_labels), model)
-   ```
-  
-   Remarks that in my implementation, the output layer will not be included in the consideration.   
-
--  <b>AFRs - Activation Function Removal for source-level:</b>  
-   Target: Training program  
-   Brief Operator Description: Remove activation layers of a randomly selected layer    
-   Implementation:  
-   1. AFRs operator traverses through the entire structure of deep learning model and record all the layers with activation functions except the output layer.  
-   1. AFRs randomly remove all activation functions of a randomly selected layer.  
-     
-   Syntax:  
-   ```python
-    copied_dataset, mutated_model  = source_mut_opts.AFRs_mut(training_dataset, model)
-   ```
-   Example:  
-   ```python
-    (AFRs_train_datas, AFRs_train_labels), AFRs_model = source_mut_opts.AFRs_mut((train_datas, train_labels), model)
-   ```
-   
-   Remarks that in my implementation, the activation functions of the output layer will not be included in the consideration. For instance, the value after activation function, softmax, of the output layer reflects the level of confidence. It may be better not to eliminate the activation functions of the output layer.  
-   
 Model-level mutation operators 
 ------------------
 Model-level mutation operators directly mutate the structure and weights of DNN without training procedure, which is more efficient for mutated model generation. Model-level mutation operators automatically analysis structure of given DNN, mutate on a copy of the original DNN, and return the mutated copy of the original DNN.  
@@ -343,6 +200,156 @@ Model-level mutation operators directly mutate the structure and weights of DNN 
    Remarks:
    1. In my implementation, the activation functions of the output layer will not be included in the consideration. For instance, the value after activation function, softmax, of the output layer reflects the level of confidence. It may be better not to eliminate the activation functions of the output layer.  
 
+Source-level mutation operators 
+------------------
+Source-level mutation operators mutate either the original training dataset or the original training program. A training dataset mutant or training program mutant can further participate in the training process to generate a mutated model for mutation testing.  
+  
+For each of the mutation operators, there are several user-configurable parameters can be specified. See the description of individual operators Implementation for more details.  
+  
+-  <b> DR - Data Repetition:</b>  
+   Target : Training dataset  
+   Brief Operator Description: DR operator duplicates a portion of training dataset  
+   Implementation:  
+   1. A portion of samples among dataset will be chosen independently and exclusively based on mutation ratio.  
+   2. Selected samples will be duplicated.  
+   3. Duplicated samples will be concatenated with the original training dataset.  
+   
+   Syntax:  
+   ```python
+    mutated_dataset, copied_model  = source_mut_opts.DR_mut(training_dataset, model, mutation_ratio)
+   ```
+   Example:  
+   ```python
+    (DR_train_datas, DR_train_labels), DR_model = source_mut_opts.DR_mut((train_datas, train_labels), model, 0.01)
+   ```
+   
+-  <b>LE - Label Error:</b>  
+   Target: Training dataset  
+   Brief Operator Description: LE operator falsifies a portion of results (e.g., labels) in traning dataset    
+   Implementation:  
+   1. A specific amount of samples is chosen independently and exclusively based on mutation ratio.  
+   2. Each result (e.g., label) among the chosen samples is mislabeled by LE operator. For instance, if the set of labels is donated as L, {0, 1, ..., 9}, and the correct label is 0, LE operator will randomly assign a value among L except the correct label 0.    
+  
+   Syntax:  
+   ```python
+    mutated_dataset, copied_model  = source_mut_opts.LE_mut(training_dataset, model, label_lower_bound, label_upper_bound, mutation_ratio)
+   ```
+   Example:  
+   ```python
+    (LE_train_datas, LE_train_labels), LE_model = source_mut_opts.LE_mut((train_datas, train_labels), model, 0, 9, 0.01)
+   ```
+    
+-  <b>DM - Data Missing :</b>  
+   Target: Training dataset  
+   Brief Operator Description: Remove a portion of training dataset  
+   Implementation:  
+   1. A specific amount of samples is chosen independently and exclusively for further removal based on mutation ratio.  
+   2. Selected samples in the training dataset are removed.  
+      
+   Syntax:  
+   ```python
+    mutated_dataset, copied_model  = source_mut_opts.DM_mut(training_dataset, model, mutation_ratio)
+   ```
+   Example:  
+   ```python
+    (DM_train_datas, DM_train_labels), DM_model = source_mut_opts.DM_mut((train_datas, train_labels), model, 0.01)
+   ```
+   
+-  <b>DF - Data Shuffle:</b>   
+   Target: Training dataset  
+   Brief Operator Description: Shuffle a portion of samples among training dataset  
+   Implementation:  
+   1. A specific amount of samples is chosen independently and exclusivel based on mutation ratio.  
+   2. Selected samples will be extracted, shuffled, and injected back to the training dataset.  
+   
+   Syntax:  
+   ```python
+    mutated_dataset, copied_model  = source_mut_opts.DF_mut(training_dataset, model, mutation_ratio)
+   ```
+   Example:  
+   ```python
+    (DF_train_datas, DF_train_labels), DF_model = source_mut_opts.DF_mut((train_datas, train_labels), model, 0.01)
+   ```
+   
+   Remarks:
+   1. Only the selected samples will be shuffled and the order of unselected samples is preserved.  
+   
+-  <b>NP - Noise Perturb:</b>  
+   Target: Training dataset  
+   Brief Operator Description: Add noise to a portion of samples among training dataset  
+   Implementation:  
+   1. A specific amount of samples is chosen independently and exclusivel based on mutation ratio.  
+   2. Noises are appended on each of the selected datasets. Since raw data in the training dataset and test dataset has been standardized with 0 mean and unit standard deviation, the value of noises follows normal distribution, where standard deviation parameter is a user-configurable parameter with default value 0.1 and mean is 0.    
+       
+   Syntax:  
+   ```python
+    mutated_dataset, copied_model  = source_mut_opts.NP_mut(training_dataset, model, mutation_ratio, STD=0.1)
+   ```
+   Example:  
+   ```python
+    # Without specification of standard deviation parameter (STD), STD is set to 0.1 as default
+    (NP_train_datas, NP_train_labels), NP_model = source_mut_opts.NP_mut((train_datas, train_labels), model, 0.01)
+    # Usage with specification of STD value as 2
+    (NP_train_datas, NP_train_labels), NP_model = source_mut_opts.NP_mut((train_datas, train_labels), model, 0.01, STD=2)
+   ```
+   
+-  <b>LR - Layer Removal:</b>  
+   Target: Training program  
+   Brief Operator Description: Remove a randomly selected layer which satisfies conditions  
+   Implementation:  
+   1. LR operator traverses through the entire structure of deep learning model and record all the layers where conditions are satisfied. The first condition is that the input and output shape of a layer should be the same. The second condition is that, according to the paper, DeepMutation: Mutation Testing of Deep Learning Systems, LR mutation operator mainly focuses on layers (e.g., Dense, BatchNormalization layer), whose deletion doesn't make too much influence on the mutated model, since arbitrary removal of a layer may generate obviously different Deep Learning model from the original one.  
+   2. One of the selected layers is randomly removed from the deep learning model.  
+   
+   Syntax:  
+   ```python
+    copied_dataset, mutated_model  = source_mut_opts.LR_mut(training_dataset, model)
+   ```
+   Example:  
+   ```python
+    (LR_train_datas, LR_train_labels), LR_model = source_mut_opts.LR_mut((train_datas, train_labels), model)
+   ```
+  
+   Remarks:
+   1. In my implementation, the input layer and output layer will not be included in the consideration.   
+   
+-  <b>LAs - Layer Addition for source-level:</b>  
+   Target: Training program  
+   Brief Operator Description: Randomly add a layer to one of suitable spots in the deep learning model  
+   Implementation:  
+   1. LAs operator traverses through the entire structure of deep learning model and record all the spots where a layer can be added.   
+   2. According to the paper, DeepMutation: Mutation Testing of Deep Learning Systems, LAs operator mainly focuses on adding layers like Activation, BatchNormalization. More types of layers should be considered in the future implementation once addition of a layer will not generate obviously different Deep Learning model from the original one, where unqualified mutant can be filtered out.   
+  
+   Syntax:  
+   ```python
+    copied_dataset, mutated_model  = source_mut_opts.LAs_mut(training_dataset, model)
+   ```
+   Example:  
+   ```python
+    (LAs_train_datas, LAs_train_labels), LAs_model = source_mut_opts.LAs_mut((train_datas, train_labels), model)
+   ```
+  
+   Remarks:
+   1. In my implementation, the output layer will not be included in the consideration.   
+
+-  <b>AFRs - Activation Function Removal for source-level:</b>  
+   Target: Training program  
+   Brief Operator Description: Remove activation layers of a randomly selected layer    
+   Implementation:  
+   1. AFRs operator traverses through the entire structure of deep learning model and record all the layers with activation functions except the output layer.  
+   1. AFRs randomly remove all activation functions of a randomly selected layer.  
+     
+   Syntax:  
+   ```python
+    copied_dataset, mutated_model  = source_mut_opts.AFRs_mut(training_dataset, model)
+   ```
+   Example:  
+   ```python
+    (AFRs_train_datas, AFRs_train_labels), AFRs_model = source_mut_opts.AFRs_mut((train_datas, train_labels), model)
+   ```
+   
+   Remarks:
+   1. In my implementation, the activation functions of the output layer will not be included in the consideration. For instance, the value after activation function, softmax, of the output layer reflects the level of confidence. It may be better not to eliminate the activation functions of the output layer.  
+   
 
 Assumption & Suggestion of Usage
 ----------------
