@@ -392,12 +392,7 @@ Files below are ordered in alphabetical order.
    2. ModelUtils contains functions related to neural network architectures and configurations which are used frequently for both source-level and model-level mutation operators. For instance, the model copy function, since TensorFlow does not actually support deep copy for model instance.  
    3. ExaminationalUtils contains functions which prevent invalid or problematic inputs. For instance, invalid mutation ratio which is out of the range between 0 and 1.  
 
-    
-Background information
-----------------
-  (some background information about mutation operators will be added here)
-  
- 
+
 Configuration
 ----------------
   Python: 3.5.1  
