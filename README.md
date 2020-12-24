@@ -1,4 +1,8 @@
-# DeepMutation
+# DeepMutation Operators 
+
+**Disclaimer - this repo. is no longer maintained and updated (May 2019), which was developed with the UROP, Detecting Deep Learning Software Defects (Spring 2019), HKUST.**
+
+**Disclaimer - This repo. provides the tool (interface) for conducting mutation testing on machine learning. Experiments related to UROP/ML mutation-testing are not stored here. Feel free to design your own experiments and hope this repo. helps!**
 
 This repository aims to implement mutation operators for Deep Learning Mutation Testing.  
   
@@ -401,12 +405,12 @@ Configuration
   NumPy: 1.15.1  
 
 
-References
+(Unofficial) References
 ----------------
   Lei Ma, Fuyuan Zhang, Jiyuan Sun, Minhui Xue, Bo Li, Felix Juefei-Xu, Chao Xie, Li Li, Yang Liu, Jianjun Zhao, et al. <br/>
   DeepMutation:  Mutation testing of Deep Learning Systems. <br/>
   https://arxiv.org/pdf/1805.05206.pdf <br/>
 
-  Jingyi Wang, Guoliang Dongy, Jun Sun, Xinyu Wangy, Peixin Zhangy, Singapore University of Technology and Design Zhejiang University.<br/> 
+  Jingyi Wang, Guoliang Dongy, Jun Sun, Xinyu Wangy, Peixin Zhangy<br/> 
   Adversarial Sample Detection for Deep Neural Network through Model Mutation Testing <br/>
   https://arxiv.org/pdf/1812.05793.pdf <br/>
